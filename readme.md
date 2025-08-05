@@ -1,5 +1,6 @@
 # supersonicACCELERATOR Paraphonic Semi-Modular Synthesizer and Drum Machine
 
+[![Watch the video](https://img.youtube.com/vi/0orJ6Mp31xY/maxresdefault.jpg)](https://youtu.be/0orJ6Mp31xY)
 
 This repository contains:
 * a SuperCollider-based paraphonic semi-modular synthesizer and drum machine organized as a single file
@@ -17,7 +18,7 @@ Download and install from:
 
 SuperCollider is the programming language and environment in which the code runs.
 
-### 2. **Clone this Repository**
+### 2. **Download this Repository**
 
 There are two options: 
 
@@ -50,28 +51,44 @@ Note: Press `Cmd + Shift + L` (or `Ctrl + Shift + L` on PC) to kill the SuperCol
 ### 1. **Prerequisites**
 
 - Bela Mini with a working Bela image installed.
-- SSH access to the board.
-- `supercollider` installed via Bela's package manager (`apt`, or build manually).
+- access to the board.
+- `supercollider` installed via Bela's package manager (it comes already installed).
 
-### 2. **Deploy Your Patch**
+### 2. **Download this Repository**
 
-From your computer:
+There are two options: 
+
+either click the "< > Code" button in the upper right of this page and download the .zip file,
+
+or 
+
 ```bash
-scp -r your-repo-name root@192.168.7.2:/root/Bela/projects/
+git clone https://github.com/yourusername/your-repo-name.git
+cd your-repo-name
 ```
 
-Then, SSH into the Bela:
-```bash
-ssh root@192.168.7.2
-cd /root/Bela/projects/your-repo-name
-```
+### 3. **Deploy to Bela**
 
-### 3. **Start the Patch**
+Plug in Bela Mini to your computer via USB
+From your internet browser, navigate to `bela.local`
+Navigate to the Project Explorer (Folder Icon)
+Create a new SuperCollider project named supersonicACCELERATOR
+Drag & drop all files into "Project contents."  Allow _main.scd to overwrite.
+We can't drag and drop the folders, so create them yourself on Bela.  One named "samples", and one named "recording"
+Drag & drop the contents of the samples folder on your computer into the "samples" folder in Bela
 
-Use Bela’s SuperCollider wrapper or write a `main.scd` entry script that boots the server and runs your patch.  
-Alternatively, use the IDE via [Bela's web interface](http://192.168.7.2).
+Navigate to Project Settings (Gear Icon)
+set Run project on boot to supersonicACCELERATOR
+set Block size (audio frames) to 512
+Shut down Bela and close the bela.local window in your browser.
 
-You may need to modify `loadBuffers` or `sample` paths depending on Bela's audio I/O and filesystem layout.
+
+### 4. **Start the Patch**
+
+Now when you plug in Bela Mini, the code will automatically run.
+Bela Mini takes approximately 60 seconds to start.  This can feel like a lifetime, but your patience will be rewarded.  Do not turn on the MS-20ic controller until then, or you may get strange behavior, like the recording not working.
+
+
 
 ---
 

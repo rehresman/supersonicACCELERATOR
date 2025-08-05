@@ -5,6 +5,8 @@ s.options.numInputBusChannels = 0;
 s.options.numOutputBusChannels = 2;
 s.options.sampleRate = 44100;
 s.options.blockSize = 512;
+s.options.recSampleFormat = "int16";
+s.options.recHeaderFormat = "wav";
 Server.killAll;
 
 
@@ -2066,6 +2068,15 @@ this makes it so we step through the sequence normally with Pseq and then down t
 					if(cc99val == 6){
 						//initialize driftLFO
 						~driftLFO.set(\freq, 0.04);
+						////////////////////////////////////////////////////////////////
+						// create recording
+						////////////////////////////////////////////////////////////////
+
+						s.bind({
+							~recording.prepareForRecord(~recordingPath);
+						});
+						s.makeBundle(2.0, {~recording.record(numChannels: 2);
+							"starting recording!".postln;});
 					};
 
 					//handle user connections
@@ -2535,18 +2546,6 @@ this makes it so we step through the sequence normally with Pseq and then down t
 	s.sync;
 	~createSequencer.value;
 	s.sync;
-
-
-
-
-	////////////////////////////////////////////////////////////////
-	// create recording
-	////////////////////////////////////////////////////////////////
-
-	~recording.prepareForRecord(~recordingPath);
-	s.sync;
-	~recording.record;
-	"starting recording!".postln;
 };
 
 s.freeAll;
