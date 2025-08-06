@@ -1103,11 +1103,25 @@ this makes it so we step through the sequence normally with Pseq and then down t
 			case
 			//rhythm centric mode
 			{~rhythmCentric or: {rhythmicMode == 1}}{
-				if(scaleOdds.(evolveFactor, 50).coin){
+				case
+				//too low, go higher
+				{genFreq <= lowerOuterBound} {
+					nextFreq = genFreq + randJump;
+				}
+				//too high, go lower
+				{genFreq > upperOuterBound} {
+					nextFreq = genFreq - randJump;
+				}
+				//evolve normally
+				{ scaleOdds.(evolveFactor, 50).coin }{
 					randomDirection = 0.75.coin.if {-1} {1};
 					randJump = randJump * randomDirection;
 					nextFreq = genFreq + randJump;
-				} {nextFreq = genFreq};
+				}
+				//stay the same
+				{ true }{
+					nextFreq = genFreq;
+				};
 				sequenceNonMajorNote.(nextFreq, genVelocity, stepIndex, songSection);
 			}
 
