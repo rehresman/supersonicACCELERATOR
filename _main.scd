@@ -1077,7 +1077,6 @@ this makes it so we step through the sequence normally with Pseq and then down t
 			*/
 
 			if (scaleOdds.(evolveFactor, 29).coin){
-				"updating rhythm randomly...".postln;
 				~updateVelocityMatrix.(songSection);
 			};
 
