@@ -4,7 +4,8 @@
 
 This repository contains:
 * a SuperCollider-based paraphonic semi-modular synthesizer and drum machine organized as a single file
-* a set of audio samples 
+* a set of audio samples  
+* a jpeg labeling all knobs and patch points
 * a wavetable generator utility
 
 ---
@@ -78,8 +79,8 @@ We can't drag and drop the folders, so create them yourself on Bela.  One named 
 Drag & drop the contents of the samples folder on your computer into the "samples" folder in Bela
 
 Navigate to Project Settings (Gear Icon)
-set Run project on boot to supersonicACCELERATOR
-set Block size (audio frames) to 512
+Set "Run project on boot" to supersonicACCELERATOR
+Set "Block size (audio frames)" to 512
 Shut down Bela and close the bela.local window in your browser.
 
 
@@ -94,6 +95,44 @@ Bela Mini takes approximately 60 seconds to start.  This can feel like a lifetim
 
 ## ❓ FAQ
 
+### How do I use the tape delay?
+Press and hold the momentary button (next to the mod wheel).  Use the mod wheel to dial in your desired amount of fx.
+Momentary button + Clock changes delay time
+Momentary button + Master Volume changes delay feedback
+
+The tape delay time is always synced to the clock, with varying clock divisions at different tempos.
+
+### The knobs and patch points aren't working as expected.
+Many knobs and patch points have been redefined or modified from the original MS-20 design.  There is a jpeg file `knob labels.jpg` included in the repository containing a map of the new controls.  I would recommend sticking some labels on your MS-20ic controller for ease-of-use.
+
+### How do I start the sequencer?
+Patch a dummy cable to Rate In.  Leave the other end of the cable unplugged, unless you want to control the rate with something variable.
+
+### What are the oscillator mod amount knobs normalled to?
+Drift is normalled to Oscillator 1 Mod, and Osc 1 Out is normalled to Oscillator 2 Mod.
+
+### What are the other normalled connections?
+* LFO -> Mod 1 for All Osc Freq Mod and the filters
+* Envelope Generator 1 -> Mod 2 for All Osc Freq Mod
+* Envelope Generator 2 -> Mod 2 for the filters
+* Envelope Generator 2 -> VCA Amount
+* Noise -> Sample & Hold In
+* Sequencer Gate Out -> Sample & Hold Clock In
+* Osc 1 Out -> Osc 1 In
+
+### How do I make Envelope Generator 1 self-trigger/loop?
+Patch EG1 Rev Out to EG1 Trig In.  This is weird, becuase it's the opposite of how you would self-trigger EG1 on the original MS-20.  But...
+
+EG1 is triggered whenever EG1 Trig In gets a signal > 0. 
+It releases when EG1 Trig In gets a signal <= 0.  
+
+It doesn't care about rising edges or anything like that.  
+
+All values on the patch bay range in between -1 and 1.  Most are bipolar, but some are unipolar like the LFO Square Wave Out, or Sequencer Gate, and only range from 0 to 1.  EG2 Rev Out is also 0 to 1, not 0 to -1.  
+
+### How do I filter Drums In?
+Press and hold the momentary button (next to the mod wheel), and turn the drums selection knob on the far right to access a DJ-style low pass filter to the left, and Low-Shelf EQ to the right, designed for levels and drops.  There is a virtual notch in the center for carefree twiddling.
+
 ### Why are my samples not loading?
 Make sure the `samples/` folder exists and that paths are correct. File names and file paths are almost always the issue.
 
@@ -101,7 +140,7 @@ Make sure the `samples/` folder exists and that paths are correct. File names an
 No.  There is no on-screen interface by design.
 
 ### How can I record the output?
-Recording begins automatically when you turn on the MS-20ic controller.  Recording ends and is saved when you turn off the MS-20ic Controller.
+Recording begins automatically when you turn on the MS-20ic controller.  Recording ends and is saved when you turn off the MS-20ic Controller.  Find the recording in the `recording/` directory.  It will be called `supersonicACCELERATOR.wav`.
 
 ### My recording is blank.
 The order in which you run the code and turn on the MS-20ic controller matters.  The code should be running before and after the MS-20ic controller is turned on and off.  Furthermore, if you turn the controller off and then on again, a new recording will NOT be made.  Currently you need to restart the code to make a new recording, though I may update this as time goes on.
@@ -157,4 +196,4 @@ MIT License – feel free to use, modify, and distribute.
 ## 🙏 Acknowledgments
 
 - Thanks to the SuperCollider community
-- Inspired by the Korg MS-20, Make Noise DPO, Erica Synths Fusion, Mutable Instruments Marbles, Soundtoys Radiator, Elektron Analog Rytm MkII, Urei 1176, DAFx-17, and Buchla 259
+- Inspired by the Korg MS-20, Make Noise DPO, Erica Synths Fusion VCO2, Mutable Instruments Marbles, Soundtoys Radiator, Elektron Analog Rytm MkII, Urei 1176, DAFx-17, and Buchla 259

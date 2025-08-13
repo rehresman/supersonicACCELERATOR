@@ -13,48 +13,48 @@ Server.killAll;
 /*
 
 ============================================================
- code organization
+code organization
 ============================================================
 
- this is a large file. highlight the name of the section you want to navigate to,
- then use Cmd + F (or Ctrl + F) and Enter to jump there.
+this is a large file. highlight the name of the section you want to navigate to,
+then use Cmd + F (or Ctrl + F) and Enter to jump there.
 
 ------------------------------------------------------------
- safeguards & init
+safeguards & init
 ------------------------------------------------------------
 
- create buses
- functions and environment variables
- ├ voice functions and environment variables
- ├ oscillator functions and environment variables
- └ sequencer functions and environment variables
- prepare recording
- loadBuffers
+create buses
+functions and environment variables
+├ voice functions and environment variables
+├ oscillator functions and environment variables
+└ sequencer functions and environment variables
+prepare recording
+loadBuffers
 
 ------------------------------------------------------------
- create nodes
+create nodes
 ------------------------------------------------------------
 
- ├ safeguards
- ├ create Groups
- ├ define patchNode
- ├ create virtual patch matrix
- ├ create Synths
- ├ create voice
- ├ create midi handlers
- ├ create clock
- ├ create sequencer
- └ create recording
+├ safeguards
+├ create Groups
+├ define patchNode
+├ create virtual patch matrix
+├ create Synths
+├ create voice
+├ create midi handlers
+├ create clock
+├ create sequencer
+└ create recording
 
 ------------------------------------------------------------
- boot instructions
+boot instructions
 ------------------------------------------------------------
 
- ├ initialize midi
- ├ initialize buses
- ├ create SynthDefs
- ├ create ServerTree
- └ run ServerTree
+├ initialize midi
+├ initialize buses
+├ create SynthDefs
+├ create ServerTree
+└ run ServerTree
 
 */
 
@@ -241,17 +241,19 @@ s.newBusAllocators;
 ~freqOut = Bus.audio(s, 1);
 
 ~gateKr = Bus.control(s, 1);
-~gateIn = Bus.audio(s, 1);
 ~gateOut = Bus.audio(s, 1);
 
 ~drumClockDiv = Bus.control(s, 1);
 ~delayClockDiv = Bus.control(s, 1);
-~tapeRhythmOut = Bus.control(s, 1);
+~tapeDivOut = Bus.control(s, 1);
+~delayFeedback = Bus.control(s, 1);
 
 ~wavefolderIn = Bus.audio(s, 1);
 ~wavefolderOut = Bus.audio(s, 1);
 ~drumFXIn = Bus.audio(s, 1);
 ~drumFXOut = Bus.audio(s, 1);
+~fxTimeIn = Bus.audio(s, 1);
+~normalLevel = Bus.control(s, 1);
 
 
 
@@ -1198,7 +1200,7 @@ this makes it so we step through the sequence normally with Pseq and then down t
 
 ~updateSnare = {|tempo|
 	var seqLength = ~drumMatrix.size;
-	var rando = (tempo < 120).if { rrand(8, ~buffers.snares.size) } { rrand(0,7) };
+	var rando = (tempo < 120).if { rrand(18, ~buffers.snares.size) } { rrand(0,17) };
 	0.1.coin.if { ~snareDrum.set(\buf, ~buffers.snares[rando])};
 	(tempo < 120).if { ~snareDrum.set(\buf, ~buffers.snares[rando]) };
 	~drumMatrix.do({|step, index|
@@ -1272,8 +1274,16 @@ this makes it so we step through the sequence normally with Pseq and then down t
 ~updateKick = { |tempo|
 	var seqLength = ~drumMatrix.size;
 	var pattern = rrand(0,1);
-	var rando = rrand(1,~buffers.kicks.size);
-	(tempo < 120).if { ~kickDrum.set(\buf, ~buffers.kicks[rando]) } { ~kickDrum.set(\buf, ~buffers.kicks[0])  };
+	//todo:  make setting the kick click-free
+	var randoDowntempo = rrand(6,~buffers.kicks.size);
+	var randoUptempo = rrand(0, 5);
+	case
+	{ tempo < 120 }{
+		0.1.coin.if {~kickDrum.set(\buf, ~buffers.kicks[randoDowntempo])};
+	}
+	{ tempo >= 120}{
+		0.1.coin.if {~kickDrum.set(\buf, ~buffers.kicks[0])  };
+	};
 	~drumMatrix.do({|step, index|
 		case
 		{ tempo < 120 } {
@@ -1516,9 +1526,9 @@ this makes it so we step through the sequence normally with Pseq and then down t
 	}
 };
 
-	//////////////////////////////////////////////////////////////////////
-	// prepare recording
-	//////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+// prepare recording
+//////////////////////////////////////////////////////////////////////
 ~recording = Recorder(s);
 ~recordingPath = PathName.new(thisProcess.nowExecutingPath).parentPath +/+ "recording"
 +/+ "supersonicACCELERATOR.wav";
@@ -1543,60 +1553,77 @@ this makes it so we step through the sequence normally with Pseq and then down t
 	//
 	//  drum samples suffixed with _downtempo are only used at slower bpms
 	//
-	//  protip: normalize your drum samples so they are all at 0db.  that will lead to
-	//  a pretty neutral mix. once you get the feel of that mix, create custom mixes
-	//  to taste.
 	//
 	//  protip: compress your drum samples in a DAW before using them with this
-	//  device.  There's no drum compressor in here.  a little bit goes a long way
+	//  device.  there's no drum compressor in here.  if you don't know how to do
+	//  that, just knock off 3-5db using an attack time of 0.3ms to 1ms, and a fast
+	//  release (50ms)
 	//
 	//
+	//  protip: normalize your drum samples so they are all at 0db.  that will lead to
+	//  a pretty neutral mix. once you get the feel of that, modify sample volume
+	//  to taste.  some samples won't like being so loud
 
 
 	~srcPath = PathName.new(thisProcess.nowExecutingPath).parentPath +/+ "samples";
 
 	~buffers = (
-		kicks: [Buffer.read(s, ~srcPath +/+ "kick.wav"),
-			Buffer.read(s, ~srcPath +/+ "kick_downtempo.wav"),
-			Buffer.read(s, ~srcPath +/+ "kick_downtempo4.wav"),
-			Buffer.read(s, ~srcPath +/+ "kick_downtempo3.wav")
+		kicks: [Buffer.readChannel(s, ~srcPath +/+ "kick0.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "kick1.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "kick2.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "kick3.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "kick4.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "kick5.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "kick_downtempo.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "kick_downtempo4.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "kick_downtempo3.wav", channels: [0])
 		],
-		toms: [Buffer.read(s, ~srcPath +/+ "tom1.wav"),
-			Buffer.read(s, ~srcPath +/+ "tom_downtempo1.wav")],
-		snares: [Buffer.read(s, ~srcPath +/+ "snare11.wav"),
-			Buffer.read(s, ~srcPath +/+ "snare12.wav"),
-			Buffer.read(s, ~srcPath +/+ "snare13.wav"),
-			Buffer.read(s, ~srcPath +/+ "snare14.wav"),
-			Buffer.read(s, ~srcPath +/+ "snare15.wav"),
-			Buffer.read(s, ~srcPath +/+ "snare16.wav"),
-			Buffer.read(s, ~srcPath +/+ "snare17.wav"),
-			Buffer.read(s, ~srcPath +/+ "snare18.wav"),
-			Buffer.read(s, ~srcPath +/+ "snare_downtempo1.wav"),
-			Buffer.read(s, ~srcPath +/+ "snare_downtempo2.wav"),
-			Buffer.read(s, ~srcPath +/+ "snare_downtempo3.wav"),
-			Buffer.read(s, ~srcPath +/+ "snare_downtempo4.wav"),
-			Buffer.read(s, ~srcPath +/+ "snare_downtempo5.wav"),
+		toms: [Buffer.readChannel(s, ~srcPath +/+ "tom1.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "tom_downtempo1.wav", channels: [0])],
+		snares: [Buffer.readChannel(s, ~srcPath +/+ "snare11.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "snare12.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "snare13.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "snare14.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "snare15.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "snare16.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "snare17.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "snare18.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "clap1.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "clap2.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "clap3.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "clap4.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "clap5.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "rim1.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "rim2.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "rim3.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "rim4.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "rim5.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "snare_downtempo1.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "snare_downtempo2.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "snare_downtempo3.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "snare_downtempo4.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "snare_downtempo5.wav", channels: [0]),
 		],
 		hats: [
-			Buffer.read(s, ~srcPath +/+ "hat0.wav"),
-			Buffer.read(s, ~srcPath +/+ "hat1.wav"),
-			Buffer.read(s, ~srcPath +/+ "hat2.wav"),
-			Buffer.read(s, ~srcPath +/+ "hat3.wav"),
-			Buffer.read(s, ~srcPath +/+ "hat4.wav"),
-			Buffer.read(s, ~srcPath +/+ "hat5.wav"),
-			Buffer.read(s, ~srcPath +/+ "hat6.wav"),
-			Buffer.read(s, ~srcPath +/+ "hat7.wav"),
-			Buffer.read(s, ~srcPath +/+ "hat8.wav"),
+			Buffer.readChannel(s, ~srcPath +/+ "hat0.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "hat1.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "hat2.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "hat3.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "hat4.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "hat5.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "hat6.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "hat7.wav", channels: [0]),
+			Buffer.readChannel(s, ~srcPath +/+ "hat8.wav", channels: [0]),
 		],
-		violence: Buffer.read(s, ~srcPath +/+ "granular_violence.wav"),
-		water: Buffer.read(s, ~srcPath +/+ "water.wav"),
-		enoise: Buffer.read(s, ~srcPath +/+ "granular_electrical_noise.wav"),
-		allGranular: Buffer.read(s, ~srcPath +/+ "granular_drums.wav"),
-		flute: Buffer.read(s, ~srcPath +/+ "flute_chord.wav"),
-		triangle: Buffer.read(s, ~srcPath +/+ "nes_tri.wav"),
-		reese: Buffer.read(s, ~srcPath +/+ "reese1.wav"),
-		chord: Buffer.read(s, ~srcPath +/+ "mFreakChord.wav"),
-		hydrachord: Buffer.read(s, ~srcPath +/+ "hydra_chord.wav"),
+		violence: Buffer.readChannel(s, ~srcPath +/+ "granular_violence.wav", channels: [0]),
+		water: Buffer.readChannel(s, ~srcPath +/+ "water.wav", channels: [0]),
+		enoise: Buffer.readChannel(s, ~srcPath +/+ "granular_electrical_noise.wav", channels: [0]),
+		allGranular: Buffer.readChannel(s, ~srcPath +/+ "granular_drums.wav", channels: [0]),
+		flute: Buffer.readChannel(s, ~srcPath +/+ "flute_chord.wav", channels: [0]),
+		triangle: Buffer.readChannel(s, ~srcPath +/+ "nes_tri.wav", channels: [0]),
+		reese: Buffer.readChannel(s, ~srcPath +/+ "reese1.wav", channels: [0]),
+		chord: Buffer.readChannel(s, ~srcPath +/+ "mFreakChord.wav", channels: [0]),
+		hydrachord: Buffer.readChannel(s, ~srcPath +/+ "hydra_chord.wav", channels: [0]),
 	);
 	~wavefolderBuf = Buffer.alloc(s, ~wavefolderLUTSize);
 	~heatBuf = Buffer.alloc(s, ~heatLUTSize);
@@ -1763,12 +1790,12 @@ this makes it so we step through the sequence normally with Pseq and then down t
 			~patchNodeNew.("HPF Cutoff In", 13, true, ~hpfCutoffIn.index, ~eg2Out.index, ~routingGrp),
 			~patchNodeNew.("Osc2 Mod In", 32, true, ~osc2ModIn.index, ~osc1Out, ~routingGrp),
 			~patchNodeNew.("LPF Cutoff In", 17, true, ~lpfCutoffIn.index, ~eg2Out.index, ~routingGrp),
-			~patchNodeNew.("EG1 Trig In", 18, true, ~eg1TrigIn.index, ~gateIn.index, ~routingGrp),
+			~patchNodeNew.("EG1 Trig In", 18, true, ~eg1TrigIn.index, ~gateOut.index, ~routingGrp),
 			~patchNodeNew.("Osc2 CV In", 24, true, ~osc2CVIn.index, ~freqOut.index, ~routingGrp),
 			~patchNodeNew.("AM In", 21, true, ~amIn.index, ~eg2Out.index, ~routingGrp),
 			~patchNodeNew.("EG All Time In", 19, true, ~egAllTimeIn.index, nil, ~routingGrp),
 			~patchNodeNew.("Osc1 In", 9, true, ~osc1In.index, ~osc1Out.index, ~routingGrp),
-			~patchNodeNew.("All Trig In", 26, true, ~gateIn.index, ~gateOut.index, ~routingGrp),
+			~patchNodeNew.("FX Time In", 26, true, ~fxTimeIn.index, ~dcOut.index, ~routingGrp),
 			~patchNodeNew.("Osc1 Mod In", 31, true, ~osc1ModIn.index, ~driftLFOOut.index, ~routingGrp),
 			~patchNodeNew.("Seq Rate In", 34, true, ~seqRateIn.index, ~dcNegOut.index, ~routingGrp),
 		];
@@ -1784,9 +1811,9 @@ this makes it so we step through the sequence normally with Pseq and then down t
 
 	s.bind({
 
-		~kickDrum = Synth(\kickSampler, [buf: ~buffers.kicks[0], duration: 4], ~modGrp);
+		~kickDrum = Synth(\kickSampler, [buf: ~buffers.kicks[rrand(0, 5)], duration: 4], ~modGrp);
 		~tomDrum = Synth(\drumSampler, [buf: ~buffers.toms[0]], ~modGrp);
-		~snareDrum = Synth(\snareSampler, [buf: ~buffers.snares[0]], ~modGrp);
+		~snareDrum = Synth(\snareSampler, [buf: ~buffers.snares[rrand(0, 17)]], ~modGrp);
 		~hatDrum = Synth(\hatSampler, [buf: ~buffers.hats[0]], ~modGrp);
 		~openHatDrum = Synth(\openHatSampler, [buf: ~buffers.hats[0]], ~modGrp);
 
@@ -1839,9 +1866,9 @@ this makes it so we step through the sequence normally with Pseq and then down t
 
 		~tapeDelay = Synth(\TapeDelay, [
 			\out, 0,
-			\mix, 1,           // Balance between dry and wet
-			\feedback, 0.8,      // Amount of feedback (0-0.9 to avoid runaway feedback)
-			\wowRate, 0.33,       // Speed of the wow/flutter LFO in Hz
+			\mix, 1,
+			\feedback, ~delayFeedback.asMap,
+			\wowRate, 0.33,
 			\wowDepth, 0.005,
 			\clockDiv, ~delayClockDiv.asMap
 		], ~fxGrp);
@@ -1966,6 +1993,8 @@ this makes it so we step through the sequence normally with Pseq and then down t
 			// patch matrix / patch bay MIDI handler
 			///////////////////
 			var processCombinedCCs = { |cc99val, cc98val, cc6val|
+				//TODO:
+				// convert all these if statements into case statements for clarity
 
 				/*
 				["cc99:", cc99val].postln;
@@ -2200,16 +2229,27 @@ this makes it so we step through the sequence normally with Pseq and then down t
 				},
 				1, {
 					knob = val.linlin(0, 127, -1, 1);
-					if (~buttonIn.getSynchronous.asInteger < 1){
+					case
+					{~buttonIn.getSynchronous.asInteger < 1}{
+						//no button press
 						~modWheelIn.set(knob);
-					} {
-						~delayAmt.set(knob);
+					}
+					{ true }{
+						//button held
+						case
+						{ knob > 0 } {
+							~normalLevel.set(1 - knob);
+							~delayAmt.set(0);
+						}
+						{ true }{
+							~delayAmt.set(knob);
+						}
+
 					};
 				},
 				// VCO1
 				14, {
 					knob = (val < 64).if { val.linexp(0, 63, 0.25, 1) } { val.linexp(64, 127, 1, 8) };
-					knob = Lag.kr(knob, 0.18);
 					~osc1PW.set(knob);
 				},
 				15, {
@@ -2233,12 +2273,12 @@ this makes it so we step through the sequence normally with Pseq and then down t
 				},
 				19, {
 					knob = (val < 64).if { val.linexp(0, 63, 0.25, 1) } { val.linexp(64, 127, 1, 8) };
-					knob = Lag.kr(knob, 0.18);
 					~osc2Pitch.set(knob);
 				},
 				22, {
 					case
-					{val == 0} { knob = 0;
+					{val == 0} {
+						knob = 0;
 						if(~fuzz.notNil){
 							~fuzz.free;
 						};
@@ -2317,11 +2357,11 @@ this makes it so we step through the sequence normally with Pseq and then down t
 				// VCO Mixer
 				20, {
 					knob = val.linlin(0, 127, 0.0, 1.0);
-					~osc1Level.set(Lag.kr(knob, 0.18));
+					~osc1Level.set(knob);
 				},
 				21, {
 					knob = val.linlin(0, 127, 0.0, 1.0);
-					~osc2Level.set(Lag.kr(knob, 0.18));
+					~osc2Level.set(knob);
 				},
 				// HPF
 				28, {
@@ -2346,7 +2386,6 @@ this makes it so we step through the sequence normally with Pseq and then down t
 				},
 				79, {
 					knob = val.linlin(0, 127, 0.0, 1.0);
-					knob = Lag.kr(knob, 0.18);
 					~lpfModEG2.set(knob);
 				},
 				// MG
@@ -2369,16 +2408,27 @@ this makes it so we step through the sequence normally with Pseq and then down t
 				},
 				// EG2
 				25, {
-					knob = val.linlin(0, 127, 2, 258);
 
-					if (~buttonIn.getSynchronous.asInteger < 1){
-						//set drum clock division
+
+					case
+					{ ~buttonIn.getSynchronous.asInteger < 1}{
+						//no button press
+						knob = val.linlin(0, 127, 2, 258);
+
 						case
-						{knob < 70} { ~drumClockDiv.set(2) }
-						{knob > 170} { ~drumClockDiv.set(0.5) }
-						{true} { ~drumClockDiv.set(1) };
+						{knob < 8 } {
+							~drumClockDiv.set(4)
+						}
+						{knob < 70} {
+							~drumClockDiv.set(2)
+						}
+						{knob > 170} {
+							~drumClockDiv.set(0.5)
+						}
+						{true} {
+							~drumClockDiv.set(1)
+						};
 
-						//set delay clock division (based on raw midi values for now)
 						case
 						{val < 1} { ~delayClockDiv.set(96) }
 						{val < 3} { ~delayClockDiv.set(32) }
@@ -2387,7 +2437,7 @@ this makes it so we step through the sequence normally with Pseq and then down t
 						{val > 95} { ~delayClockDiv.set(0.5) }
 						{true} { ~delayClockDiv.set(1) };
 
-						//set actual tempo value
+						//set notched tempo values
 						case
 						{ knob < 90}{
 							~eg2Hold.set(knob);
@@ -2422,10 +2472,14 @@ this makes it so we step through the sequence normally with Pseq and then down t
 						{ true}{
 							~eg2Hold.set(knob);
 						};
-					} {
-						~tapeRhythmOut.set(knob);
+					}
+					{ true }{
+						// button hold
+						knob = val.linexp(0, 127, 0.125, 4);
+						~tapeDivOut.set(knob)
 					}
 				},
+
 				73, {
 					knob = val.curvelin(0, 127, 0.001, 30, -16);
 					~eg2Attack.set(knob);
@@ -2461,14 +2515,19 @@ this makes it so we step through the sequence normally with Pseq and then down t
 				},
 				88, {
 					case
-					{ val < 64} { knob = val.linlin(0, 63, 0.0, 0.5) }
-					{ true } { knob = val.linexp(64, 127, 0.5, 1) };
+					{ val < 64} {
+						knob = val.linlin(0, 63, 0.0, 0.5)
+					}
+					{ true } {
+						knob = val.linexp(64, 127, 0.5, 1)
+					};
 					~espLowCut.set(knob);
 				},
 				89, {
-					if (val == 0){
+					case {val == 0}{
 						~espHighCut.set(val);
-					} {
+					}
+					{ true }{
 						knob = val.linlin(0, 127, 0.0, 1);
 						~espHighCut.set(knob);
 					};
@@ -2488,22 +2547,26 @@ this makes it so we step through the sequence normally with Pseq and then down t
 				},
 				91, {
 					knob = val.linlin(0, 127, 0, 9).round;
-					if (~buttonIn.getSynchronous.asInteger < 1){
+					case
+					{~buttonIn.getSynchronous.asInteger < 1}{
+						// no button press
 						~espThreshold.set(knob);
-					} {
+					}
+					{ true }{
+						// button hold
 						var lpfCutoff, hpfCutoff;
 						case
 						{val < 60 }{
 							lpfCutoff = val.linexp(0, 60, 80, 20000);
-							hpfCutoff = 20;
+							hpfCutoff = 0;
 
 						}
 						{ val < 68 }{
 							lpfCutoff = 20000;
-							hpfCutoff = 20;
+							hpfCutoff = 0;
 						}
 						{ true }{
-							hpfCutoff = val.linexp(68, 127, 20, 10000);
+							hpfCutoff = val.linlin(68, 127, 0, -15);
 							lpfCutoff = 20000;
 						};
 						~extLPFCutoff.set(lpfCutoff);
@@ -2513,7 +2576,16 @@ this makes it so we step through the sequence normally with Pseq and then down t
 				// Others
 				7, {
 					knob = val.linlin(0, 127, 0.0, 1);
-					~outputVolume.set(knob);
+					case
+					{~buttonIn.getSynchronous.asInteger < 1}{
+						// no button press
+						~outputVolume.set(knob);
+					}
+					{ true }{
+						// button hold
+						~delayFeedback.set(knob);
+					}
+
 				}
 			);
 		});
@@ -2564,9 +2636,9 @@ this makes it so we step through the sequence normally with Pseq and then down t
 s.freeAll;
 Buffer.freeAll;
 
-	////////////////////////////////////////////////////////////////
-	// boot instructions
-	////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+// boot instructions
+////////////////////////////////////////////////////////////////
 
 s.waitForBoot({
 	s.sync;
@@ -2648,6 +2720,7 @@ s.waitForBoot({
 	~seqGateDiv4In.set(0);
 	~clockDivideIn.set(1);
 	~delayClockDiv.set(1);
+	~delayFeedback.set(0.8);
 
 	// others
 	~modWheelIn.set(0);
@@ -2656,10 +2729,12 @@ s.waitForBoot({
 	~driftLFOAmt.set(0);
 	~delayAmt.set(-1);
 	~modWheelIn.set(0.75);
-	~tapeRhythmOut.set(1);
+	~tapeDivOut.set(1);
 	~drumClockDiv.set(1);
 	~extLPFCutoff.set(20000);
-	~extHPFCutoff.set(20);
+	~extHPFCutoff.set(0);
+	~normalLevel.set(1);
+
 
 	~freqIn.set(0);
 	~gateKr.set(0);
@@ -2728,7 +2803,7 @@ s.waitForBoot({
 	}).add;
 
 	SynthDef(\eg2, {|doneAction = 0|
-		var gate = InFeedback.ar(~gateIn);
+		var gate = InFeedback.ar(~gateOut);
 		var timeMod = Latch.kr(InFeedback.ar(~egAllTimeIn), Impulse.kr(10));
 		var eg2, sustain;
 
@@ -3046,7 +3121,7 @@ s.waitForBoot({
 		// pitch knob
 		freq = \pitch.kr(0.5, 0.18) * freq;
 
-		sig = CombN.ar(WhiteNoise.kr(), 0.2, 1 / [freq], 5) * 5;
+		sig = CombN.ar(WhiteNoise.kr(), 0.5, 1 / [freq], 5) * 5;
 		sig = Clip.ar(sig, -5, 5);
 
 		Out.ar(~osc1Out, sig);
@@ -3319,7 +3394,7 @@ s.waitForBoot({
 
 		input1 = LeakDC.ar(input1);
 
-		sig = (input1 * \input1Level.kr(1)) + (input2 * \input2Level.kr(0.5));
+		sig = (input1 * \input1Level.kr(1, 0.18)) + (input2 * \input2Level.kr(0, 0.18));
 		Out.ar(~mixerOut, sig);
 	}).add;
 
@@ -3421,17 +3496,18 @@ s.waitForBoot({
 
 	SynthDef(\TapeDelay, {
 		arg out=0, mix=1, feedback=0.4, wowRate=0.5, wowDepth=0.02, clockDiv = 1;
-		var input, input2, wet, delayedSignal, wowLFO, wowLFOR, delayTime, amp, randomRate, randomRateR, rhythm;
+		var input, input2, wet, delayedSignal, wowLFO, wowLFOR, delayTime, amp;
+		var randomRate, randomRateR, customDiv, modulation;
 
 		input = In.ar(~normalVCAOut, 1);
 		input2 = In.ar(~drumFXIn, 1);
 		delayTime = In.kr(~clockTempoOut, 1);
 		amp = In.kr(~delayAmt, 1);
-		rhythm = In.kr(~tapeRhythmOut, 1);
-		rhythm = (rhythm + 0.25) * 0.6;
+		customDiv = In.kr(~tapeDivOut, 1);
+		modulation = LinExp.ar(InFeedback.ar(~fxTimeIn, 1), -1, 1, 0.5, 2);
 		amp = (amp + 1) / 2;
-		delayTime = delayTime * rhythm / clockDiv;
-		delayTime = Lag.kr(delayTime, 0.1);
+		delayTime = 0.75 * delayTime * modulation * customDiv / clockDiv;
+		delayTime = Lag.ar(delayTime, 0.5);
 
 		randomRate = Latch.kr(LFNoise1.kr(0.1).range(0.9, 1.1), Impulse.kr(1));
 		randomRateR = Latch.kr(LFNoise1.kr(0.1).range(0.9, 1.1), Impulse.kr(1));
@@ -3478,8 +3554,9 @@ s.waitForBoot({
 		var sig, env;
 		var tempo = In.kr(~clockTempoOut, 1);
 		var tempoMult = In.kr(~drumClockDiv, 1);
-		var durationCalc = tempo / tempoMult *duration * 0.20;
+		var durationCalc = tempo / tempoMult *duration * 0.19;
 		var trig = Trig1.kr(\gate.kr(0).roundUp(1), durationCalc);
+
 
 		sig = PlayBuf.ar(numChannels: 1,
 			bufnum: buf,
@@ -3488,7 +3565,7 @@ s.waitForBoot({
 			startPos: 0,
 			loop: 0
 		);
-		env = EnvGen.kr(envelope: Env.asr(0.001, 1, 0.05), gate: trig);
+		env = EnvGen.kr(envelope: Env.asr(0.001, 1, 0.03), gate: trig);
 		sig = sig * 5.5 * env * amp;
 
 		Out.ar(~drumOut, sig);
@@ -3590,6 +3667,7 @@ s.waitForBoot({
 		var fxIn = In.ar(~delayOut, 2);
 		var extLPFCutoff = LagIn.kr(~extLPFCutoff, 1, 0.18);
 		var extHPFCutoff = LagIn.kr(~extHPFCutoff, 1, 0.18);
+		var normalLevel = LagIn.kr(~normalLevel, 1);
 		var sig;
 		var rate = 0.5;
 		var depth = 0.006;
@@ -3599,8 +3677,9 @@ s.waitForBoot({
 		var del1L, del2L, del1R, del2R;
 		var wetL, wetR;
 		var mixWet;
-		var filteredExtIn = RLPF.ar(RHPF.ar(extIn, extHPFCutoff, 0.4), extLPFCutoff, 0.4) * 4;
+		var filteredExtIn = RLPF.ar(BLowShelf.ar(extIn, 100, 1, extHPFCutoff), extLPFCutoff, 0.4) * 4;
 
+		normalIn = normalIn * normalLevel;
 		chorusIn = normalIn + ((filteredExtIn ! 2) / 8);
 
 		lfo1L = LFTri.kr(rate, 0, depth, baseDelay);
@@ -3665,14 +3744,13 @@ s.waitForBoot({
 	}).add;
 
 	SynthDef(\fuzz, {|amp = 1|
-		// unfinished,  needs gain staging
 		var sig, fuzzed, input1, input2;
 		var outLevel = 0.5;
 		var biasSetting = 0.15;
 		var in = In.ar(~postFX, 2);
 		var fuzzAmt = 0.3;
 		var masterVolume = In.kr(~outputVolume, 1);
-		var gain = 0.25;
+		var gain = 0.9;
 
 		// simulate capacitor at input
 		sig = in * gain;
@@ -3692,7 +3770,7 @@ s.waitForBoot({
 		// output capacitor simulation
 		fuzzed = LeakDC.ar(fuzzed);
 		fuzzed = fuzzed * outLevel;
-		sig = fuzzed / gain * masterVolume;
+		sig = fuzzed * gain * masterVolume;
 
 		Out.ar(0, sig);
 	}).add;
