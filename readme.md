@@ -8,6 +8,8 @@ This repository contains:
 * a jpeg labeling all knobs and patch points
 * a wavetable generator utility
 
+![labeling mockup](knob%20labels.jpg) 
+
 ---
 
 ## 💻 Desktop Installation (macOS / Windows / Linux)
@@ -131,13 +133,19 @@ It doesn't care about rising edges or anything like that.
 All values on the patch bay range in between -1 and 1.  Most are bipolar, but some are unipolar like the LFO Square Wave Out, or Sequencer Gate, and only range from 0 to 1.  EG2 Rev Out is also 0 to 1, not 0 to -1.  
 
 ### How do I filter Drums In?
-Press and hold the momentary button (next to the mod wheel), and turn the drums selection knob on the far right to access a DJ-style low pass filter to the left, and Low-Shelf EQ to the right, designed for levels and drops.  There is a virtual notch in the center for carefree twiddling.
+Press and hold the momentary button (next to the mod wheel), and turn the drums knob to access a DJ-style low pass filter to the left, and Low-Shelf EQ to the right, designed for lo-fi, levels and drops.  There is a virtual notch in the center, allowing the signal to pass through unprocessed for carefree twiddling.
+
+### Can I add fx to the drums?
+The Drums In input is not routed to any fx.  However the snare drum gets independently sent to the fx by default.  In general if you want fx on your drums, you have to patch it into the Mixer Osc 1 In input.
 
 ### Why are my samples not loading?
 Make sure the `samples/` folder exists and that paths are correct. File names and file paths are almost always the issue.
 
 ### Does this work without a Korg MS-20ic MIDI controller?
 No.  There is no on-screen interface by design.
+
+### Is this Eurorack-compatible?
+No.  The Korg MS-20ic controller can use Eurorack cables, but it is not able to send or receive CV signals.
 
 ### How can I record the output?
 Recording begins automatically when you turn on the MS-20ic controller.  Recording ends and is saved when you turn off the MS-20ic Controller.  Find the recording in the `recording/` directory.  It will be called `supersonicACCELERATOR.wav`.
