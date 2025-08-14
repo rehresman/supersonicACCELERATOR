@@ -267,6 +267,10 @@ s.newBusAllocators;
 // trigger release stage of note
 ~noteOff = {|note|
 	~gateKr.set(0);
+	~seqGateIn.set(0);
+	if(~notesPlayed > 0){
+		~seqGateDiv4In.set(0);
+	};
 };
 
 //center frequency is 130 (C3).  maps up and down 2.5 octaves, so
@@ -622,12 +626,20 @@ make the amount whatever you want (usually 1 is good).
 	~osc2 = ~setOsc2Shape.(~osc2Shape.getSynchronous.asInteger);
 };
 
+~notesPlayed = 0;
 
 ~noteOn = {|note, cv, amp|
 	var freq = ~cvToFreq.(cv);
 	~freqIn.set(cv);
 	~gateKr.set(1);
 	~ampKr.set(amp);
+	~seqCVIn.set(cv);
+	~seqCVInvIn.set((-1) * cv);
+	~seqGateIn.set(1);
+	if(~notesPlayed == 0){
+		~seqGateDiv4In.set(1);
+	};
+	~notesPlayed = (~notesPlayed + 1) % 4;
 	~voice[\retrigger].(freq, amp);
 };
 
@@ -985,10 +997,6 @@ this makes it so we step through the sequence normally with Pseq and then down t
 			~pitchMatrix[stepIndex][songSection] = cv;
 			~seqCVIn.set(cv);
 			~seqCVInvIn.set((-1) * cv);
-			~seqGateIn.set(1);
-			if(~gateMod4 == 0){
-				~seqGateDiv4In.set(1);
-			};
 			if(playNote == 1){
 				~noteOn.(note: 1, cv: cv, amp: exprand(0.5, 1));
 			};
@@ -996,10 +1004,6 @@ this makes it so we step through the sequence normally with Pseq and then down t
 		0.2.wait;
 
 		s.bind {
-			~seqGateIn.set(0);
-			if(~gateMod4 == 0){
-				~seqGateDiv4In.set(0);
-			};
 			~noteOff.(note: 1);
 		};
 		0.05.wait;
