@@ -3714,29 +3714,17 @@ s.waitForBoot({
 	}).add;
 
 	SynthDef(\tape, {|amp = 1|
-		// unfinished, needs total overhaul
+		// unfinished, needs a lot of work
 		var sig = In.ar(~postFX, 2);
 		var masterVolume = In.kr(~outputVolume, 1);
 		var rates = PinkNoise.kr(0.05) + DC.kr(0.166);
-		var lfo = LFTri.kr(rates, mul: 2) + LFTri.kr(10, mul: 2) + DC.kr(1);
+		var lfo = LFTri.kr(rates, mul: 4) + (LFTri.kr(10) * PinkNoise.ar(10)) + DC.kr(1);
 
 		sig = sig * amp;
 		sig = FreqShift.ar(sig, lfo);
 		sig = HPF.ar(sig, 80);
 		sig = LPF.ar(sig, 12000);
-		sig = sig = Shaper.ar(~heatBuf,  sig / ~heatScale);
-		//sig = (sig * 1).tanh;
-		/*
-		sig = Compander.ar(
-		in: sig,
-		control: sig,
-		thresh: 0.05,
-		slopeBelow: 1,
-		slopeAbove: 0.25,
-		clampTime: 0.0008,
-		relaxTime: 0.05,
-		mul: 1.5);
-		*/
+		sig = sig = Shaper.ar(~heatBuf,  0.5 * sig / ~heatScale) * 2;
 		sig = sig * masterVolume;
 
 		Out.ar(0, sig);
