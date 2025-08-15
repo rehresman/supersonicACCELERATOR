@@ -1,6 +1,7 @@
 # supersonicACCELERATOR Paraphonic Semi-Modular Synthesizer and Drum Machine
 
 [![Watch the video](https://img.youtube.com/vi/0orJ6Mp31xY/maxresdefault.jpg)](https://youtu.be/0orJ6Mp31xY)
+Watch the video introduction at [https://youtu.be/0orJ6Mp31xY](https://youtu.be/0orJ6Mp31xY)
 
 This repository contains:
 * a SuperCollider-based paraphonic semi-modular synthesizer and drum machine organized as a single file
@@ -94,6 +95,70 @@ Bela Mini takes approximately 60 seconds to start.  This can feel like a lifetim
 
 
 ---
+
+# ✨ Concept
+
+I believe everyone should experience the joy of deep, complex musical improvisation, and I developed the ACCERLERATOR to be the fastest route to that goal.  This is not a shortcut machine that does the creative legwork for you, nor is it a retrictor that puts you into a sterile room with guardrails and safety nets.
+
+This is an iteration on the design of my favorite synthesizer of all time, the Korg MS-20.  What if it had different 16 oscillator types to choose from?  What if audio-rate modulation was encouraged?  What if a sequencer and kick drum were part of the design, and you could record a finished mix at the moment of creation?  
+
+The Harmonic [Brownian Motion](https://en.wikipedia.org/wiki/Brownian_motion) Sequencer is a controllable chaos environment that completely rejects the idea of tonal music and never does the same thing twice.  You are free to enter the tonal realm by punching in your own notes via the keyboard, which records over the sequence, but slow harmonic and rhythmic evolution remains inevitable.  The device is meant to be played primarily via the front panel knobs, and a skilled user can ride the sequencer like a neverending wave of hypnotic inspiration, sculpting the perceived melody at will.  By focusing on controlling complex timbres and leaving the source melody up to chance, this device flips the script of what musical expression can and should be.
+
+# Specs
+
+#### 4 Operating Modes:
+- Clean
+- Tape Simulation
+- Wavefolder
+- Fuzz
+
+#### Oscillator 1:
+- Wavetable
+- Physical Modeling
+- Melodic Sampler
+- Granular Sampler
+- Drag & Drop User Samples
+
+#### Oscillator 2:
+- Sine AM
+- Linear FM
+- Exponential FM with Sync
+- Square Ring Mod
+
+#### Resonant 12db/Oct. Low Pass Filter & Saturator
+#### Resonant 6db/Oct. High Pass Filter & Saturator
+
+#### Variable shape LFO with ramp and square wave outputs
+#### Loopable DSR Envelope
+#### ADSR Envelope
+#### Drift LFO
+#### 2x VCAs
+#### Sample & Hold
+#### Variable Clock with Time Division
+
+#### Harmonic Brownian Motion Sequencer:
+- Atonal Generative Sequencer
+- 3, 4, 5, or 8/16-Steps
+- Controllable Melodic and Rhythmic Content
+- Variable Melody Evolution Probability
+- Variable Drum Evolution Probability
+- Variable Drum Sample Swap Probability
+- 3 Sequencer Memory Slots
+- Arpeggiator-Style Keyboard Sequence Recording
+
+- Compressor with Sidechain Input
+- Stereo Chorus
+- Stereo Tape Delay with Modulatable Delay Time
+
+- 5-Channel Generative Drum Machine
+- Velocity Sensitivity
+- 10 User-Selectable Drum Mix Combinations
+- Resonant DJ-Style Low Pass Filter & Low-Shelf EQ
+- Drag & Drop User Drum Samples
+
+- 35 Semi-Modular MIDI Patch Points
+
+44.1k Stereo Recorder
 
 ## ❓ FAQ
 
