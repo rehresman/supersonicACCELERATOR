@@ -11,11 +11,13 @@ This repository contains:
 
 # Concept
 
-I believe everyone should experience the joy of deep, complex musical improvisation, and I developed the **ACCELERATOR** to be the fastest route to that goal.  This is not a shortcut machine that does the creative legwork for you, nor is it a retrictor that puts you into a sterile room with guardrails and safety nets.
+I believe everyone should experience the joy of deep, complex musical improvisation, and I developed the Accelerator to be the fastest route to that goal.  This is not a shortcut machine that does the creative legwork for you, nor is it a retrictor that puts you into a sterile room with guardrails and safety nets.
 
-This is an iteration on the design of my favorite synthesizer of all time, the Korg MS-20.  What if it had different 16 oscillator types to choose from?  What if audio-rate modulation was encouraged?  What if a sequencer and kick drum were part of the design, and you could record a finished mix at the moment of creation?  
+This is an iteration on the design of my favorite synthesizer of all time, the Korg MS-20.  What if it had different 16 oscillator types to choose from?  What if audio-rate modulation was encouraged?  What if a sequencer and percussive accompaniment were an integral part of the design, and you could record a finished mix at the moment of creation?  
 
-The *Harmonic Brownian Motion Sequencer* is a controllable chaos environment that completely rejects the idea of tonal music and never does the same thing twice.  You are free to enter the tonal realm by punching in your own notes via the keyboard, which records over the sequence, but slow harmonic and rhythmic evolution remains inevitable.  The device is meant to be played primarily via the front panel knobs, and a skilled user can ride the sequencer like a neverending wave of hypnotic inspiration, sculpting the perceived melody at will.  By focusing on controlling complex timbres and leaving the source melody up to chance, this device flips the script of what musical expression can and should be.
+The included *Harmonic Brownian Motion Sequencer* is a controllable chaos environment that completely rejects the idea of tonal music and never does the same thing twice.  You are free to enter the tonal realm by punching in your own notes via the keyboard, which records over the sequence, but a balance of harmonic and rhythmic evolution remains inevitable.  
+
+The Accelerator is meant to be played primarily via the front panel knobs, and a skilled user can ride the sequencer like a neverending wave of hypnotic inspiration, sculpting the perceived melody at will.  By focusing on controlling complex timbres and leaving the source melody up to chance, this device flips the script of what musical expression can and should be.
 
 # Specs
 

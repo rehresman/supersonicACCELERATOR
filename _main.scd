@@ -483,7 +483,7 @@ make the amount whatever you want (usually 1 is good).
 					pitch: ~osc1PW.asMap,
 					driftModKnob: ~portamento.asMap
 				], ~modGrp)},
-				{Synth(\nesTriangle, [
+				{Synth(\triangle, [
 					freq: freq,
 					freqModKnob1: ~freqModMG.asMap,
 					freqModKnob2: ~freqModEG1.asMap,
@@ -995,8 +995,6 @@ this makes it so we step through the sequence normally with Pseq and then down t
 
 		s.bind {
 			~pitchMatrix[stepIndex][songSection] = cv;
-			~seqCVIn.set(cv);
-			~seqCVInvIn.set((-1) * cv);
 			if(playNote == 1){
 				~noteOn.(note: 1, cv: cv, amp: exprand(0.5, 1));
 			};
@@ -1624,7 +1622,6 @@ this makes it so we step through the sequence normally with Pseq and then down t
 		enoise: Buffer.readChannel(s, ~srcPath +/+ "granular_electrical_noise.wav", channels: [0]),
 		allGranular: Buffer.readChannel(s, ~srcPath +/+ "granular_drums.wav", channels: [0]),
 		flute: Buffer.readChannel(s, ~srcPath +/+ "flute_chord.wav", channels: [0]),
-		triangle: Buffer.readChannel(s, ~srcPath +/+ "nes_tri.wav", channels: [0]),
 		reese: Buffer.readChannel(s, ~srcPath +/+ "reese1.wav", channels: [0]),
 		chord: Buffer.readChannel(s, ~srcPath +/+ "mFreakChord.wav", channels: [0]),
 		hydrachord: Buffer.readChannel(s, ~srcPath +/+ "hydra_chord.wav", channels: [0]),
@@ -2934,7 +2931,7 @@ s.waitForBoot({
 	}).add;
 
 
-	SynthDef(\nesTriangle, {|freq = 440|
+	SynthDef(\triangle, {|freq = 440|
 		var sig, rand1, rand2, rand3, freqMod1, freqMod2, freqMod3;
 		var totalModIn = InFeedback.ar(~totalModIn, 1);
 		var fmIn = InFeedback.ar(~fmIn, 1);
@@ -2949,7 +2946,7 @@ s.waitForBoot({
 		// pitch knob
 		freq = \pitch.kr(0.5, 0.18) * freq;
 
-		sig = OscN.ar(~buffers.triangle, freq);
+		sig = LFTri.ar(freq);
 		sig = sig * 1.25;
 
 		Out.ar(~osc1Out, sig);
