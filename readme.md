@@ -6,6 +6,7 @@ Watch the [video introduction](https://youtu.be/0orJ6Mp31xY).
 This repository contains:
 * a SuperCollider-based paraphonic semi-modular synthesizer and drum machine organized as a single file
 * a set of audio samples  
+* a pdf quickstart guide
 * a jpeg labeling all knobs and patch points
 * a wavetable generator utility
 
@@ -15,7 +16,7 @@ I believe everyone should experience the joy of deep, complex musical improvisat
 
 This is an iteration on the design of my favorite synthesizer of all time, the Korg MS-20.  What if it had different 16 oscillator types to choose from?  What if audio-rate modulation was encouraged?  What if a sequencer and percussive accompaniment were an integral part of the design, and you could record a finished mix at the moment of creation?  
 
-The included *Harmonic Brownian Motion Sequencer* is a controllable chaos environment that completely rejects the idea of tonal music and never does the same thing twice.  You are free to enter the tonal realm by punching in your own notes via the keyboard, which records over the sequence, but a balance of harmonic and rhythmic evolution remains inevitable.  
+The included *Harmonic Brownian Motion Sequencer* is a controllable chaos environment that *almost* completely rejects the idea of tonal music and never does the same thing twice.  You are free to enter the tonal realm by punching in your own notes via the keyboard, which records over the sequence, but a balance of harmonic and rhythmic evolution is inevitable.  
 
 The Accelerator is meant to be played primarily via the front panel knobs, and a skilled user can ride the sequencer like a neverending wave of hypnotic inspiration, sculpting the perceived melody at will.  By focusing on controlling complex timbres and leaving the source melody up to chance, this device flips the script of what musical expression can and should be.
 
