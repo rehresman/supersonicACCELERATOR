@@ -61,6 +61,7 @@ The Accelerator is meant to be played primarily via the front panel knobs, and a
 - Variable Drum Sample Swap Probability
 - 3 Sequencer Memory Slots
 - Arpeggiator-Style Keyboard Sequence Recording
+- Variable Swing
 
 - Compressor with Sidechain Input
 - Stereo Chorus
@@ -75,6 +76,7 @@ The Accelerator is meant to be played primarily via the front panel knobs, and a
 - 35 Semi-Modular MIDI Patch Points
 
 44.1k Stereo Recorder
+44.1k Stem Recorder
 
 ---
 ![labeling mockup](knob%20labels.jpg) 
@@ -205,6 +207,21 @@ Press and hold the momentary button (next to the mod wheel), and turn the drums 
 ### Can I add fx to the drums?
 The Drums In input is not routed to any fx.  However the snare drum gets independently sent to the fx by default.  In general if you want fx on your drums, you have to patch it into the Mixer Osc 1 In input.
 
+### How do I add swing to the sequencer?
+Open up the `_main.scd` file in a text editor.  About 25 lines down you'll see 
+```
+~swingDrums = 0;
+~swingSynth = 0;
+```
+`0` means no swing. `100` means full swing.  Choose any value in between and save the file.
+
+### How do I turn on stem recording mode?
+Open up the `_main.scd` file in a text editor.  About 18 lines down you'll see 
+```
+~recordStems = false;
+```
+change `false` to `true` and save the file to record stems.
+
 ### Why are my samples not loading?
 Make sure the `samples/` folder exists and that paths are correct. File names and file paths are almost always the issue.
 
@@ -215,10 +232,13 @@ No.  There is no on-screen interface by design.
 No.  The Korg MS-20ic controller can use Eurorack cables, but it is not able to send or receive CV signals.
 
 ### How can I record the output?
-Recording begins automatically when you turn on the MS-20ic controller.  Recording ends and is saved when you turn off the MS-20ic Controller.  Find the recording in the `recording/` directory.  It will be called `supersonicACCELERATOR.wav`.
+Recording begins automatically when you turn on the MS-20ic controller.  Recording ends and is saved when you turn off the MS-20ic Controller.  Find the recording in the `recording/` directory.  It will be called `supersonicACCELERATOR.wav`, or if you have stem recording enabled, it will be three stems, `supersonicACCELERATOR_drums.wav` `supersonicACCELERATOR_synth.wav` and `supersonicACCELERATOR_fx.wav`.
 
 ### My recording is blank.
-The order in which you run the code and turn on the MS-20ic controller matters.  The code should be running before and after the MS-20ic controller is turned on and off.  Furthermore, if you turn the controller off and then on again, a new recording will NOT be made.  Currently you need to restart the code to make a new recording, though I may update this as time goes on.
+The order in which you run the code and turn on the MS-20ic controller matters.  The code should be running before and after the MS-20ic controller is turned on and off.
+
+### My stem recording sounds different than when I performed it
+Stem recordings are the same source material, but without the mixing elements of the device.  So the synth won't be sidechained to the drums, there will be no stereo imaging, and Fuzz and Tape mode will not affect the recorded output.  This is because if you want stems, I assume you will mix them on your own using whatever outside processing you like.
 
 ### Can I contribute or fork this?
 Absolutely. Keep all updates as a single file to maintain Bela Mini compatibility.

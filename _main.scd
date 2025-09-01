@@ -9,7 +9,20 @@ s.options.recSampleFormat = "int16";
 s.options.recHeaderFormat = "wav";
 Server.killAll;
 
+/*
+============================================================
+user options (feel free to change these before running the code)
+============================================================
+*/
 
+~recordStems = false;  // false means you get one stereo track recording.
+                                  // true means you get three tracks.  One for drums, one for
+                                  // fx, and one for synth.  Stem recordings do not include
+                                  // mixing effects, like the compressor, stereo imager,
+                                  // or fuzz and tape modes.
+
+~swingDrums = 0;       // 0 means no swing. 100 is full triplet swing.
+~swingSynth = 0;
 /*
 
 ============================================================
@@ -222,6 +235,10 @@ s.newBusAllocators;
 ~delayAmt = Bus.control(s, 1);
 ~drumOut = Bus.audio(s, 1);
 ~extIn = Bus.audio(s, 1);
+~extOut = Bus.audio(s, 1);
+~drumsRecordOut = Bus.audio(s, 1);
+~synthRecordOut = Bus.audio(s, 1);
+~fxRecordOut = Bus.audio(s, 2);
 ~noiseOut = Bus.audio(s, 1);
 ~normalVCAOut = Bus.audio(s, 1);
 ~compressorSidechainIn = Bus.audio(s, 1);
@@ -299,6 +316,9 @@ s.newBusAllocators;
 	Shaper.ar(~cvToFreqBuf, cv);
 };
 
+~maxSwingDown = 0.00083;
+~maxSwingUp = 0.00073;
+~upbeat = 0;
 
 
 // this imitates analog asymmetric clipping
@@ -972,6 +992,16 @@ this makes it so we step through the sequence normally with Pseq and then down t
 		var nearestSemitone = (cv / ~halfStep).round * ~halfStep;
 		var deviation = cv - nearestSemitone;
 		var octave = ((nearestSemitone / (~halfStep * 12)).round) * (~halfStep * 12);
+		var noteOnDur;
+		case
+		{~upbeat == 0}
+		{
+			noteOnDur = 0.2 + (~swingSynth * ~maxSwingDown);
+		}
+		{ ~upbeat == 1} {
+			noteOnDur = 0.2 - (~swingSynth * ~maxSwingUp);
+		};
+
 		case { rangeThreshold >= 0.5 }{
 			//rescale
 			rangeThreshold = 2 * rangeThreshold - 1;
@@ -999,7 +1029,7 @@ this makes it so we step through the sequence normally with Pseq and then down t
 				~noteOn.(note: 1, cv: cv, amp: exprand(0.5, 1));
 			};
 		};
-		0.2.wait;
+		noteOnDur.wait;
 
 		s.bind {
 			~noteOff.(note: 1);
@@ -1053,6 +1083,7 @@ this makes it so we step through the sequence normally with Pseq and then down t
 			var songSection = ~espCVAdjust.getSynchronous.asInteger;
 			var rhythmicMode = (~espLowCut.getSynchronous < 0.5).if { 1 } { 0 };
 
+			stepIndex.postln;
 			case
 			{~contracting} {
 				~contracting = (scaleOdds.(evolveFactor, 30).coin).if { ~contracting.not } { ~contracting };
@@ -1510,7 +1541,13 @@ this makes it so we step through the sequence normally with Pseq and then down t
 		var tempoMult = ~drumClockDiv.getSynchronous;
 		var step = ~drumsRoutine.next;
 		var tempo = ~eg2Hold.getSynchronous;
-		playTime = intervalOn / tempoMult;
+		case
+		{~upbeat == 0}{
+			playTime = (intervalOn + (~swingDrums * ~maxSwingDown)) / tempoMult;
+		}
+		{~upbeat == 1}{
+			playTime = (intervalOn - (~swingDrums * ~maxSwingUp)) / tempoMult;
+		};
 		update = ~probablilityMap.(1 -~espHighCut.getSynchronous).coin;
 		if (update == true) {
 			~updateSnare.(tempo);
@@ -1525,15 +1562,29 @@ this makes it so we step through the sequence normally with Pseq and then down t
 		restTime = intervalOff / tempoMult;
 		~drumOff.value;
 		restTime.wait;
+		~upbeat = (~upbeat + 1) % 2;
 	}
 };
 
 //////////////////////////////////////////////////////////////////////
 // prepare recording
 //////////////////////////////////////////////////////////////////////
-~recording = Recorder(s);
-~recordingPath = PathName.new(thisProcess.nowExecutingPath).parentPath +/+ "recording"
-+/+ "supersonicACCELERATOR.wav";
+if(~recordStems){
+	~drumsRecording = Recorder(s);
+	~drumsRecordingPath = PathName.new(thisProcess.nowExecutingPath).parentPath +/+ "recording"
+	+/+ "supersonicACCELERATOR_drums.wav";
+	~synthRecording = Recorder(s);
+	~synthRecordingPath = PathName.new(thisProcess.nowExecutingPath).parentPath +/+ "recording"
+	+/+ "supersonicACCELERATOR_synth.wav";
+	~fxRecording = Recorder(s);
+	~fxRecordingPath = PathName.new(thisProcess.nowExecutingPath).parentPath +/+ "recording"
+	+/+ "supersonicACCELERATOR_fx.wav";
+
+} {
+	~recording = Recorder(s);
+	~recordingPath = PathName.new(thisProcess.nowExecutingPath).parentPath +/+ "recording"
+	+/+ "supersonicACCELERATOR.wav";
+};
 
 
 
@@ -1899,6 +1950,7 @@ this makes it so we step through the sequence normally with Pseq and then down t
 		~vca = Synth(\characterVCA, [], ~dryGrp, \addToTail);
 
 		~sidechainCompressor = Synth(\compressor, [], ~fxGrp, \addToHead);
+		~drumsFilter = Synth(\drumsInFilter, [], ~dryGrp, \addToTail);
 
 		~outputMixer = Synth(\outputMixer, [], ~fxGrp, \addToTail);
 
@@ -2101,9 +2153,13 @@ this makes it so we step through the sequence normally with Pseq and then down t
 
 					//special case: Turn OFF
 					if(cc99val == 6){
-						~recording.stopRecording;
-						// add this back in later
-						//~recording.prepareForRecord(~recordingPath);
+						if(~recordStems){
+							~drumsRecording.stopRecording;
+							~fxRecording.stopRecording;
+							~synthRecording.stopRecording;
+						}{
+							~recording.stopRecording;
+						};
 					};
 				} {
 					var inputArrayIndex;
@@ -2116,10 +2172,27 @@ this makes it so we step through the sequence normally with Pseq and then down t
 						////////////////////////////////////////////////////////////////
 
 						s.bind({
-							~recording.prepareForRecord(~recordingPath);
+							if(~recordStems){
+								~drumsRecording.prepareForRecord(~drumsRecordingPath, 1);
+								~fxRecording.prepareForRecord(~fxRecordingPath, 2);
+								~synthRecording.prepareForRecord(~synthRecordingPath, 1);
+							}{
+								~recording.prepareForRecord(~recordingPath, 2);
+							}
 						});
-						s.makeBundle(2.0, {~recording.record(numChannels: 2);
-							"starting recording!".postln;});
+
+
+						if(~recordStems){
+							s.makeBundle(2.0, {
+								~synthRecording.record(bus: ~synthRecordOut, numChannels: 1);
+								~fxRecording.record(bus: ~fxRecordOut, numChannels: 2);
+								~drumsRecording.record(bus: ~drumsRecordOut, numChannels: 1);
+							});
+						} {
+							s.makeBundle(2.0, {
+								~recording.record(numChannels: 2);
+							});
+						};
 					};
 
 					//handle user connections
@@ -3471,6 +3544,7 @@ s.waitForBoot({
 		sig = LeakDC.ar(sig);
 
 		Out.ar(~normalVCAOut, sig);
+		Out.ar(~synthRecordOut, sig / 6);
 	}).add;
 
 	SynthDef(\panelVCA, {
@@ -3527,8 +3601,10 @@ s.waitForBoot({
 		LocalOut.ar(delayedSignal);
 
 		wet = (input * (1 - mix)) + (delayedSignal * mix);
+		wet = wet * amp;
 
-		Out.ar(~delayOut, wet * amp);
+		Out.ar(~delayOut, wet);
+		Out.ar(~fxRecordOut, wet / 6);
 	}).add;
 
 	SynthDef(\drumSampler, {|buf, amp = 1, duration = 1|
@@ -3662,12 +3738,19 @@ s.waitForBoot({
 		Out.ar(~compressorOut,sig);
 	}).add;
 
-	SynthDef(\outputMixer, {
-		var normalIn = In.ar(~compressorOut, 2);
+	SynthDef(\drumsInFilter, {
 		var extIn = In.ar(~extIn, 1);
-		var fxIn = In.ar(~delayOut, 2);
 		var extLPFCutoff = LagIn.kr(~extLPFCutoff, 1, 0.18);
 		var extHPFCutoff = LagIn.kr(~extHPFCutoff, 1, 0.18);
+		var sig = RLPF.ar(BLowShelf.ar(extIn, 100, 1, extHPFCutoff), extLPFCutoff, 0.4) * 4;
+		Out.ar(~extOut, sig);
+		Out.ar(~drumsRecordOut, sig / 24);
+	}).add;
+
+	SynthDef(\outputMixer, {
+		var normalIn = In.ar(~compressorOut, 2);
+		var fxIn = In.ar(~delayOut, 2);
+		var extIn = In.ar(~extOut, 1);
 		var normalLevel = LagIn.kr(~normalLevel, 1);
 		var sig;
 		var rate = 0.5;
@@ -3678,10 +3761,9 @@ s.waitForBoot({
 		var del1L, del2L, del1R, del2R;
 		var wetL, wetR;
 		var mixWet;
-		var filteredExtIn = RLPF.ar(BLowShelf.ar(extIn, 100, 1, extHPFCutoff), extLPFCutoff, 0.4) * 4;
 
 		normalIn = normalIn * normalLevel;
-		chorusIn = normalIn + ((filteredExtIn ! 2) / 8);
+		chorusIn = normalIn + ((extIn ! 2) / 8);
 
 		lfo1L = LFTri.kr(rate, 0, depth, baseDelay);
 		lfo2L = LFTri.kr((rate * 1.05), 0, depth, baseDelay);
