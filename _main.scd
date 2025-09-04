@@ -1083,7 +1083,6 @@ this makes it so we step through the sequence normally with Pseq and then down t
 			var songSection = ~espCVAdjust.getSynchronous.asInteger;
 			var rhythmicMode = (~espLowCut.getSynchronous < 0.5).if { 1 } { 0 };
 
-			stepIndex.postln;
 			case
 			{~contracting} {
 				~contracting = (scaleOdds.(evolveFactor, 30).coin).if { ~contracting.not } { ~contracting };
@@ -2421,11 +2420,23 @@ if(~recordStems){
 					~mgShape.set(knob);
 				},
 				12, {
-					knob = val.linlin(0, 127, 0.0, 1.0);
+					case
+					{ val == 0 } {
+						knob = 0
+					}
+					{ true }{
+						knob = val.linexp(0, 127, 0.005, 1.0);
+					};
 					~freqModMG.set(knob);
 				},
 				93, {
-					knob = val.linlin(0, 127, 0.0, 1.0);
+										case
+					{ val == 0 } {
+						knob = 0
+					}
+					{ true }{
+						knob = val.linexp(0, 127, 0.005, 1.0);
+					};
 					~freqModEG1.set(knob);
 				},
 				// VCO Mixer
@@ -2447,24 +2458,48 @@ if(~recordStems){
 					~hpfResonance.set(knob);
 				},
 				30, {
-					knob = val.linlin(0, 127, 0.0, 1.0);
+										case
+					{ val == 0 } {
+						knob = 0
+					}
+					{ true }{
+						knob = val.linexp(0, 127, 0.005, 1.0);
+					};
 					~hpfModMG.set(knob);
 				},
 				31, {
-					knob = val.linlin(0, 127, 0.0, 1.0);
+										case
+					{ val == 0 } {
+						knob = 0
+					}
+					{ true }{
+						knob = val.linexp(0, 127, 0.005, 1.0);
+					};
 					~hpfModEG2.set(knob);
 				},
 				85, {
-					knob = val.linlin(0, 127, 0.0, 1.0);
+										case
+					{ val == 0 } {
+						knob = 0
+					}
+					{ true }{
+						knob = val.linexp(0, 127, 0.005, 1.0);
+					};
 					~lpfModMG.set(knob);
 				},
 				79, {
-					knob = val.linlin(0, 127, 0.0, 1.0);
+										case
+					{ val == 0 } {
+						knob = 0
+					}
+					{ true }{
+						knob = val.linexp(0, 127, 0.005, 1.0);
+					};
 					~lpfModEG2.set(knob);
 				},
 				// MG
 				27, {
-					knob = val.linlin(0, 127, 0.05, 20);
+					knob = val.linexp(0, 127, 0.05, 400);
 					~mgFrequency.set(knob);
 				},
 				// EG1
@@ -2473,7 +2508,8 @@ if(~recordStems){
 					~eg1Delay.set(knob);
 				},
 				23, {
-					knob = val.curvelin(0, 127, 0.005, 30, -16);
+					//knob = val.curvelin(0, 127, 0.005, 30, -16);
+					knob = val.linexp(0, 127, 0.005, 30);
 					~eg1Attack.set(knob);
 				},
 				26, {
@@ -3515,6 +3551,7 @@ s.waitForBoot({
 		var bpfRes = (-0.225 * resonance) + 1;
 		var character = 42 ** (resonance / 4) * 0.117;
 		var peak, alpha;
+
 
 		lpfMod1 = exp(totalModIn * \knob1.kr(0, 0.18) * 8);
 		lpfMod2 = exp(cutoffIn * \knob2.kr(0, 0.18) * 8);
