@@ -16,10 +16,10 @@ user options (feel free to change these before running the code)
 */
 
 ~recordStems = false;  // false means you get one stereo track recording.
-                                  // true means you get three tracks.  One for drums, one for
-                                  // fx, and one for synth.  Stem recordings do not include
-                                  // mixing effects, like the compressor, stereo imager,
-                                  // or fuzz and tape modes.
+// true means you get three tracks.  One for drums, one for
+// fx, and one for synth.  Stem recordings do not include
+// mixing effects, like the compressor, stereo imager,
+// or fuzz and tape modes.
 
 ~swingDrums = 0;       // 0 means no swing. 100 is full triplet swing.
 ~swingSynth = 0;
@@ -2408,11 +2408,23 @@ if(~recordStems){
 				},
 				// VCO Master
 				5, {
-					knob = val.linlin(0, 127, 0, 1.0);
+					case
+					{ val == 0 } {
+						knob = 0
+					}
+					{ true }{
+						knob = val.linexp(0, 127, 0.005, 1.0);
+					};
 					~portamento.set(knob);
 				},
 				18, {
-					knob = val.linlin(0, 127, 0, 1);
+					case
+					{ val == 0 } {
+						knob = 0
+					}
+					{ true }{
+						knob = val.linexp(0, 127, 0.005, 1.0);
+					};
 					~masterTune.set(knob);
 				},
 				76, {
@@ -2430,7 +2442,7 @@ if(~recordStems){
 					~freqModMG.set(knob);
 				},
 				93, {
-										case
+					case
 					{ val == 0 } {
 						knob = 0
 					}
@@ -2458,7 +2470,7 @@ if(~recordStems){
 					~hpfResonance.set(knob);
 				},
 				30, {
-										case
+					case
 					{ val == 0 } {
 						knob = 0
 					}
@@ -2468,7 +2480,7 @@ if(~recordStems){
 					~hpfModMG.set(knob);
 				},
 				31, {
-										case
+					case
 					{ val == 0 } {
 						knob = 0
 					}
@@ -2478,7 +2490,7 @@ if(~recordStems){
 					~hpfModEG2.set(knob);
 				},
 				85, {
-										case
+					case
 					{ val == 0 } {
 						knob = 0
 					}
@@ -2488,7 +2500,7 @@ if(~recordStems){
 					~lpfModMG.set(knob);
 				},
 				79, {
-										case
+					case
 					{ val == 0 } {
 						knob = 0
 					}
@@ -2499,7 +2511,7 @@ if(~recordStems){
 				},
 				// MG
 				27, {
-					knob = val.linexp(0, 127, 0.05, 400);
+					knob = val.linexp(0, 127, 0.01, 400);
 					~mgFrequency.set(knob);
 				},
 				// EG1

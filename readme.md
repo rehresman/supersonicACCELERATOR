@@ -291,4 +291,5 @@ MIT License – feel free to use, modify, and distribute.
 ## 🙏 Acknowledgments
 
 - Thanks to the SuperCollider community
+- Thanks to Sam Crivelli
 - Inspired by the Korg MS-20, Make Noise DPO, Erica Synths Fusion VCO2, Mutable Instruments Marbles, Soundtoys Radiator, Elektron Analog Rytm MkII, Urei 1176, DAFx-17, and Buchla 259
