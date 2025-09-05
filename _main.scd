@@ -23,6 +23,12 @@ user options (feel free to change these before running the code)
 
 ~swingDrums = 0;       // 0 means no swing. 100 is full triplet swing.
 ~swingSynth = 0;
+
+~hatMix = 0.dbamp;      // 0.dbamp means 0db. -6.dbamp means turn the hats down by 6db.
+~snareMix = 0.dbamp;  // 3.dbamp means turn the snare up by 3db.  It's better to turn things
+~tomMix = 0.dbamp;    // down than push them too hot though, you don't want to clip
+~kickMix = 0.dbamp;
+
 /*
 
 ============================================================
@@ -1862,11 +1868,11 @@ if(~recordStems){
 
 	s.bind({
 
-		~kickDrum = Synth(\kickSampler, [buf: ~buffers.kicks[rrand(0, 5)], duration: 4], ~modGrp);
-		~tomDrum = Synth(\drumSampler, [buf: ~buffers.toms[0]], ~modGrp);
-		~snareDrum = Synth(\snareSampler, [buf: ~buffers.snares[rrand(0, 17)]], ~modGrp);
-		~hatDrum = Synth(\hatSampler, [buf: ~buffers.hats[0]], ~modGrp);
-		~openHatDrum = Synth(\openHatSampler, [buf: ~buffers.hats[0]], ~modGrp);
+		~kickDrum = Synth(\kickSampler, [buf: ~buffers.kicks[rrand(0, 5)], duration: 4, mix: ~kickMix], ~modGrp);
+		~tomDrum = Synth(\tomSampler, [buf: ~buffers.toms[0], mix: ~tomMix], ~modGrp);
+		~snareDrum = Synth(\snareSampler, [buf: ~buffers.snares[rrand(0, 17)], mix: ~snareMix], ~modGrp);
+		~hatDrum = Synth(\hatSampler, [buf: ~buffers.hats[0], mix: ~hatMix], ~modGrp);
+		~openHatDrum = Synth(\openHatSampler, [buf: ~buffers.hats[0], mix: ~hatMix], ~modGrp);
 
 
 		~modWheel = Synth(\modWheel, [], ~modGrp);
@@ -3656,7 +3662,7 @@ s.waitForBoot({
 		Out.ar(~fxRecordOut, wet / 6);
 	}).add;
 
-	SynthDef(\drumSampler, {|buf, amp = 1, duration = 1|
+	SynthDef(\tomSampler, {|buf, amp = 1, duration = 1, mix = 1|
 		var sig, env;
 		var tempo = In.kr(~clockTempoOut, 1);
 		var tempoMult = In.kr(~drumClockDiv, 1);
@@ -3671,12 +3677,12 @@ s.waitForBoot({
 			loop: 0
 		);
 		env = EnvGen.kr(envelope: Env.asr(0.001, 1, 0.05), gate: trig);
-		sig = sig * 5.5 * env * amp;
+		sig = sig * 5.5 * env * amp * mix;
 
 		Out.ar(~drumOut, sig);
 	}).add;
 
-	SynthDef(\kickSampler, {|buf, amp = 1, duration = 1|
+	SynthDef(\kickSampler, {|buf, amp = 1, duration = 1, mix = 1|
 		var sig, env;
 		var tempo = In.kr(~clockTempoOut, 1);
 		var tempoMult = In.kr(~drumClockDiv, 1);
@@ -3692,13 +3698,13 @@ s.waitForBoot({
 			loop: 0
 		);
 		env = EnvGen.kr(envelope: Env.asr(0.001, 1, 0.03), gate: trig);
-		sig = sig * 5.5 * env * amp;
+		sig = sig * 5.5 * env * amp * mix;
 
 		Out.ar(~drumOut, sig);
 		Out.ar(~kickOut, sig);
 	}).add;
 
-	SynthDef(\snareSampler, {|buf, amp = 1, duration = 1, fx = 0|
+	SynthDef(\snareSampler, {|buf, amp = 1, duration = 1, fx = 0, mix = 1|
 		var sig, env;
 		var tempo = In.kr(~clockTempoOut, 1);
 		var tempoMult = In.kr(~drumClockDiv, 1);
@@ -3713,13 +3719,13 @@ s.waitForBoot({
 			loop: 0
 		);
 		env = EnvGen.kr(envelope: Env.asr(0.001, 1, 0.05), gate: trig);
-		sig = sig * 2.25 * env * amp;
+		sig = sig * 2.25 * env * amp * mix;
 
 		Out.ar(~drumOut, sig);
 		Out.ar(~drumFXOut, sig * fx * 0.25);
 	}).add;
 
-	SynthDef(\hatSampler, {|buf, amp = 1, duration = 1, curve = -4|
+	SynthDef(\hatSampler, {|buf, amp = 1, duration = 1, curve = -4, mix = 1|
 		var sig, env;
 		var tempo = In.kr(~clockTempoOut, 1);
 		var tempoMult = In.kr(~drumClockDiv, 1);
@@ -3734,12 +3740,12 @@ s.waitForBoot({
 			loop: 0
 		);
 		env = EnvGen.kr(envelope: Env.perc(0.001, durationCalc, 1, curve), gate: trig);
-		sig = sig * 3.5 * env * amp;
+		sig = sig * 3.5 * env * amp * mix;
 
 		Out.ar(~drumOut, sig);
 	}).add;
 
-	SynthDef(\openHatSampler, {|buf, amp = 1, duration = 1, curve = -4|
+	SynthDef(\openHatSampler, {|buf, amp = 1, duration = 1, curve = -4, mix = 1|
 		var sig, env;
 		var tempo = In.kr(~clockTempoOut, 1);
 		var tempoMult = In.kr(~drumClockDiv, 1);
@@ -3754,7 +3760,7 @@ s.waitForBoot({
 			loop: 0
 		);
 		env = EnvGen.kr(envelope: Env.perc(0.001, 5, 1, curve), gate: trig);
-		sig = sig * 3.5 * env * amp;
+		sig = sig * 3.5 * env * amp  * mix;
 
 		Out.ar(~drumOut, sig);
 	}).add;
