@@ -21,8 +21,7 @@ user options (feel free to change these before running the code)
 // mixing effects, like the compressor, stereo imager,
 // or fuzz and tape modes.
 
-~swingDrums = 0;       // 0 means no swing. 100 is full triplet swing.
-~swingSynth = 0;
+~swing = 0;       // 0 means no swing. 100 is full triplet swing.
 
 ~hatMix = 0.dbamp;      // 0.dbamp means 0db. -6.dbamp means turn the hats down by 6db.
 ~snareMix = 0.dbamp;  // 3.dbamp means turn the snare up by 3db.  It's better to turn things
@@ -102,6 +101,9 @@ CmdPeriod.add({
 	};
 
 });
+
+~enableSynthOn = Condition(false);
+~enableSynthOff = Condition(false);
 
 ServerTree.removeAll;
 
@@ -998,15 +1000,6 @@ this makes it so we step through the sequence normally with Pseq and then down t
 		var nearestSemitone = (cv / ~halfStep).round * ~halfStep;
 		var deviation = cv - nearestSemitone;
 		var octave = ((nearestSemitone / (~halfStep * 12)).round) * (~halfStep * 12);
-		var noteOnDur;
-		case
-		{~upbeat == 0}
-		{
-			noteOnDur = 0.2 + (~swingSynth * ~maxSwingDown);
-		}
-		{ ~upbeat == 1} {
-			noteOnDur = 0.2 - (~swingSynth * ~maxSwingUp);
-		};
 
 		case { rangeThreshold >= 0.5 }{
 			//rescale
@@ -1028,6 +1021,7 @@ this makes it so we step through the sequence normally with Pseq and then down t
 			// cheap order mode arpeggiator
 			~liveNotes.removeAt(0);
 		};
+		~enableSynthOn.wait;
 
 		s.bind {
 			~pitchMatrix[stepIndex][songSection] = cv;
@@ -1035,12 +1029,11 @@ this makes it so we step through the sequence normally with Pseq and then down t
 				~noteOn.(note: 1, cv: cv, amp: exprand(0.5, 1));
 			};
 		};
-		noteOnDur.wait;
 
+		~enableSynthOff.wait;
 		s.bind {
 			~noteOff.(note: 1);
 		};
-		0.05.wait;
 
 		~gateMod4 = (~gateMod4 + 1) % 4;
 	};
@@ -1524,6 +1517,49 @@ this makes it so we step through the sequence normally with Pseq and then down t
 	});
 };
 
+~enableSynthNoteOn = {|upbeat, tempoMult, quarter|
+	// if tempoMult == 1
+	// synth is every beat
+	// if tempoMult == 2
+	// synth is every 2 beats
+	// if tempoMult == 4
+	// synth is every 4 beats
+
+	~enableSynthOff.test = false;
+	~enableSynthOff.signal;
+	case
+	{tempoMult == 1 }{
+		~enableSynthOn.test = true;
+	}
+	{tempoMult == 2}{
+		case
+		{ upbeat == 0}{
+			~enableSynthOn.test = true;
+		}
+		{ upbeat == 1}{
+			~enableSynthOn.test = false;
+		}
+	}
+	{tempoMult == 4}{
+		case
+		{ quarter == 0}{
+			~enableSynthOn.test = true;
+		}
+		{ true }{
+			~enableSynthOn.test = false;
+		}
+	};
+	~enableSynthOn.signal;
+};
+
+~enableSynthNoteOff = {
+	// end note on signal
+	~enableSynthOn.test = false;
+	~enableSynthOn.signal;
+	~enableSynthOff.test = true;
+	~enableSynthOff.signal;
+};
+
 //drum matrix is of the following form:
 /*
 [[hi hat velocity1, snare vel1, tom vel1, kick vel1],
@@ -1542,17 +1578,21 @@ this makes it so we step through the sequence normally with Pseq and then down t
 	var playTime;
 	var restTime;
 	var update;
+	var quarter = 0;
 	loop{
 		var tempoMult = ~drumClockDiv.getSynchronous;
 		var step = ~drumsRoutine.next;
 		var tempo = ~eg2Hold.getSynchronous;
+		// set play time and rest time
 		case
 		{~upbeat == 0}{
-			playTime = (intervalOn + (~swingDrums * ~maxSwingDown)) / tempoMult;
+			playTime = (intervalOn + (~swing * ~maxSwingDown)) / tempoMult;
 		}
 		{~upbeat == 1}{
-			playTime = (intervalOn - (~swingDrums * ~maxSwingUp)) / tempoMult;
+			playTime = (intervalOn - (~swing * ~maxSwingUp)) / tempoMult;
 		};
+		restTime = intervalOff / tempoMult;
+
 		update = ~probablilityMap.(1 -~espHighCut.getSynchronous).coin;
 		if (update == true) {
 			~updateSnare.(tempo);
@@ -1562,12 +1602,14 @@ this makes it so we step through the sequence normally with Pseq and then down t
 		};
 
 		~drumOn.(step);
+		~enableSynthNoteOn.(~upbeat, tempoMult, quarter);
 
 		playTime.wait;
-		restTime = intervalOff / tempoMult;
 		~drumOff.value;
+		~enableSynthNoteOff.();
 		restTime.wait;
 		~upbeat = (~upbeat + 1) % 2;
+		quarter = (quarter + 1) % 4;
 	}
 };
 
@@ -2549,9 +2591,6 @@ if(~recordStems){
 						}
 						{knob < 70} {
 							~drumClockDiv.set(2)
-						}
-						{knob > 170} {
-							~drumClockDiv.set(0.5)
 						}
 						{true} {
 							~drumClockDiv.set(1)
