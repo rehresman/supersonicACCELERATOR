@@ -1,3 +1,7 @@
+// Copyright (c) 2025 Ryan Ehresman
+// Licensed under the GNU GPL v3 or later.
+// Attribution required: Please credit Ryan Ehresman and reference the original repository.
+
 (
 s.freeAll;
 s = Server.default;
@@ -173,7 +177,7 @@ s.newBusAllocators;
 ~mgShape = Bus.control(s, 1);
 ~mgFrequency = Bus.control(s, 1);
 ~mgRampOut = Bus.audio(s, 1);
-~mgPulseOut = Bus.audio(s, 1);
+~mgFMIn = Bus.audio(s, 1);
 
 // eg1
 ~eg1TrigIn = Bus.audio(s, 1);
@@ -279,6 +283,7 @@ s.newBusAllocators;
 ~drumFXOut = Bus.audio(s, 1);
 ~fxTimeIn = Bus.audio(s, 1);
 ~normalLevel = Bus.control(s, 1);
+~tap = Bus.audio(s, 1);
 
 
 
@@ -1861,7 +1866,6 @@ if(~recordStems){
 		~patchOutputs = [
 			~patchNodeNew.("MG Ramp Out", 1, false, ~mgRampOut.index, nil, ~routingGrp),
 			~patchNodeNew.("Seq CV Out", 3, false, ~seqCVOut.index, nil, ~routingGrp),
-			~patchNodeNew.("MG Pulse Out", 6, false, ~mgPulseOut.index, nil, ~routingGrp),
 			~patchNodeNew.("S&H Out", 7, false, ~shOut.index, nil, ~routingGrp),
 			~patchNodeNew.("Seq CV Inv Out", 8, false, ~seqCVInvOut.index, nil, ~routingGrp),
 			~patchNodeNew.("EG1 Out", 10, false, ~eg1Out.index, nil, ~routingGrp),
@@ -1883,6 +1887,7 @@ if(~recordStems){
 			~patchNodeNew.("S&H In", 2, true, ~shIn.index, ~noiseOut.index, ~routingGrp),
 			~patchNodeNew.("S&H Clock In", 4, true, ~shClockIn.index, ~seqGateOut.index, ~routingGrp),
 			~patchNodeNew.("FM In", 5, true, ~fmIn.index, ~eg1Out.index, ~routingGrp),
+			~patchNodeNew.("MG FM In", 6, true, ~mgFMIn.index, ~seqCVOut.index, ~routingGrp),
 			~patchNodeNew.("VCA In", 12, true, ~vcaIn.index, ~dcOut.index, ~routingGrp),
 			~patchNodeNew.("Ext Signal In", 25, true, ~extIn.index, nil, ~routingGrp),
 			~patchNodeNew.("VCA Ctrl In", 14, true, ~vcaCtrlIn.index, ~dcOut.index, ~routingGrp),
@@ -1934,9 +1939,8 @@ if(~recordStems){
 
 		~mg = Synth(\mg, [
 			\rampOut, ~mgRampOut,
-			\pulseOut, ~mgPulseOut,
 			\freq, ~mgFrequency.asMap,
-			\waveform, ~mgShape.asMap
+			\fmAmt, ~mgShape.asMap
 		], ~modGrp);
 
 		~grindOsc = Synth(\freerunningLFO, [
@@ -2476,7 +2480,13 @@ if(~recordStems){
 					~masterTune.set(knob);
 				},
 				76, {
-					knob = val.linlin(0, 127, 0, 1.0);
+					case
+					{ val == 0 } {
+						knob = 0
+					}
+					{ true }{
+						knob = val.linexp(0, 127, 0.005, 1.0);
+					};
 					~mgShape.set(knob);
 				},
 				12, {
@@ -2938,18 +2948,21 @@ s.waitForBoot({
 
 
 	SynthDef(\mg, {
-		arg rampOut, freq=0.5, waveform=0.5, amp=1, pulseOut;
-		var  ramp, pulse;
+		arg rampOut, amp=1;
+		var  ramp;
+		var fmIn = InFeedback.ar(~mgFMIn, 1) + DC.ar(0.5);
+		var fmAmt = \fmAmt.kr(0, 0.18);
+		 var freq = \freq.kr(0, 0.18);
+		var fm = fmIn * fmAmt * 200 / freq;
 
-		waveform = waveform.clip(0.01, 0.99);
-		ramp = VarSaw.ar(freq, 0, waveform);
-		pulse = LFPulse.ar(freq, 0, waveform);
+		freq = freq + (freq * fm);
+		freq = freq.clip(0.01,20000);
+
+		ramp = LFTri.ar(freq, 0, 0.5);
 
 		ramp = ramp * amp;
-		pulse = pulse * amp;
 
 		Out.ar(rampOut, ramp);
-		Out.ar(pulseOut, pulse);
 	}).add;
 
 
@@ -3998,7 +4011,7 @@ s.waitForBoot({
 		var sig, slew = 0.005;
 
 		sig = Latch.ar(input, clock);
-		sig = Lag.ar(sig, slew);
+		//sig = Lag.ar(sig, slew);
 
 		Out.ar(~shOut, sig);
 	}).add;

@@ -14,9 +14,11 @@ This repository contains:
 
 I believe everyone should experience the joy of deep, complex musical improvisation, and I developed the Accelerator to be the fastest route to that goal.  This is not a shortcut machine that does the creative legwork for you, nor is it a retrictor that puts you into a sterile room with guardrails and safety nets.
 
-This is an iteration on the design of my favorite synthesizer of all time, the Korg MS-20.  What if it had different 16 oscillator types to choose from?  What if audio-rate modulation was encouraged?  What if a sequencer and percussive accompaniment were an integral part of the design, and you could record a finished mix at the moment of creation?  
+This is a digital extention of the greatest synthesizer of all time, the Korg MS-20.  What if it had 16 customizable oscillators to choose from?  What if audio-rate modulation was encouraged?  What if a sequencer, effects, and percussive accompaniment were integrated from the start, and you could record a studio-quality mix at the moment of creation?
 
-The included *Harmonic Brownian Motion Sequencer* is a controllable chaos environment that *almost* completely rejects the idea of tonal music and never does the same thing twice.  You are free to enter the tonal realm by punching in your own notes via the keyboard, which records over the sequence, but a balance of harmonic and rhythmic evolution is inevitable.  
+Of course with the breadth of digital tools also comes new limitations.  Rather than making a dedicated effort to copy my favorite designs, instead I have tried to follow the more abstract philosophies of Fumio Mieda and Hiroaki Nishijima.  This led to core values of the project like valuing sound aesthetic over clean processing, and adopting a high-speed, hard-driven development cycle.
+
+The included *Harmonic Brownian Motion Sequencer* is a controllable chaos environment that *almost* completely rejects the idea of tonal music and never does the same thing twice.  You are free to enter the tonal realm by punching in your own notes via the keyboard, which records over the sequence, but a balance of harmonic and rhythmic evolution is inevitable.  It occupys the panel space designated for the external signal processor in the original MS-20 design.
 
 The Accelerator is meant to be played primarily via the front panel knobs, and a skilled user can ride the sequencer like a neverending wave of hypnotic inspiration, sculpting the perceived melody at will.  By focusing on controlling complex timbres and leaving the source melody up to chance, this device flips the script of what musical expression can and should be.
 
