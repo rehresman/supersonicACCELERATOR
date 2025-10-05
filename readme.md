@@ -46,7 +46,7 @@ The Accelerator is meant to be played primarily via the front panel knobs, and a
 #### Resonant 12db/Oct. Low Pass Filter & Saturator
 #### Resonant 6db/Oct. High Pass Filter & Saturator
 
-#### Variable shape LFO with ramp and square wave outputs
+#### Triangle LFO with FM Input
 #### Loopable DSR Envelope
 #### ADSR Envelope
 #### Drift LFO
