@@ -182,8 +182,9 @@ Bela Mini takes approximately 60 seconds to start.  This can feel like a lifetim
 
 ---
 ![labeling mockup](knob%20labels%20v2.jpg) 
-This is how I would recommend labeling the MS-20ic controller.  I sanded the black paint off mine and put some clear coat on it to protect the amazing natural color.  I also spray-painted the white keys silver for a more brutalist aesthetic.
-
+This is how I would recommend labeling the MS-20ic controller.  I sanded the black paint off mine and put some clear coat on it to protect the amazing natural color.  I also spray-painted the white keys silver.  You can also just use blank stickers for labels:
+![sticker labels](sticker%20labels.jpg)
+The one I sanded down is still unlabeled for now.  I just printed out the diagram from the [quickstart guide](https://github.com/rehresman/supersonicACCELERATOR/blob/main/supersonicACCELERATOR%20Quickstart%20Guide.pdf) and keep it under the synth.
 
 ## ❓ FAQ
 
