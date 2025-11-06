@@ -101,10 +101,10 @@ or
 
 ### 1. **Install SuperCollider**
 
-Download and install for free from:  
+Download and install from:  
 👉 [https://supercollider.github.io/downloads](https://supercollider.github.io/downloads)
 
-SuperCollider is the programming language and environment in which the code runs.
+SuperCollider is the free programming language and environment in which the code runs.
 
 ### 2. **Download this Repository**
 
@@ -317,4 +317,4 @@ MIT License – feel free to use, modify, and distribute.
 
 - Thanks to the SuperCollider community
 - Thanks to Sam Crivelli
-- Inspired by the Korg MS-20, Make Noise DPO, Erica Synths Fusion VCO2, Mutable Instruments Marbles, Soundtoys Radiator, Elektron Analog Rytm MkII, Urei 1176, DAFx-17, and Buchla 259
+- Inspired by the Korg MS-20, Make Noise DPO, Erica Synths Fusion series, Mutable Instruments Marbles, Soundtoys Radiator, Elektron Analog Rytm MkII, Urei 1176, DAFx-17, and Buchla 259
