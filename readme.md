@@ -1,7 +1,7 @@
 # supersonicACCELERATOR Paraphonic Semi-Modular Synthesizer and Drum Machine
 
-[![Watch the video](https://img.youtube.com/vi/0orJ6Mp31xY/maxresdefault.jpg)](https://youtu.be/0orJ6Mp31xY)
-Watch the [video introduction](https://youtu.be/0orJ6Mp31xY).
+[![Watch the video](https://img.youtube.com/vi/xkHhoSj9MnE/maxresdefault.jpg)](https://youtu.be/xkHhoSj9MnE)
+Watch the [video introduction](https://youtu.be/xkHhoSj9MnE).
 
 This repository contains:
 * a SuperCollider-based paraphonic semi-modular synthesizer and drum machine organized as a single file
@@ -12,15 +12,16 @@ This repository contains:
 
 # Concept
 
-I believe everyone should experience the joy of deep, complex musical improvisation, and I developed the Accelerator to be the fastest route to that goal.  This is not a shortcut machine that does the creative legwork for you, nor is it a retrictor that puts you into a sterile room with guardrails and safety nets.
+I believe everyone should experience the joy of deep, complex musical improvisation, and I developed the Accelerator to be the fastest route to that goal.  This is not a shortcut machine that does the creative legwork for you, nor is it a restrictor that puts you into a sterile room with guardrails and safety nets.
 
-This is a digital extention of the greatest synthesizer of all time, the Korg MS-20.  What if it had 16 customizable oscillators to choose from?  What if audio-rate modulation was encouraged?  What if a sequencer, effects, and percussive accompaniment were integrated from the start, and you could record a studio-quality mix at the moment of creation?
+This is a digital extension of the greatest synthesizer of all time, the Korg MS-20.  What if it had 16 customizable oscillators to choose from?  What if audio-rate modulation was encouraged?  What if a sequencer, effects, and percussive accompaniment were integrated from the start, and you could record a studio-quality mix at the moment of creation?
 
 Of course with the breadth of digital tools also comes new limitations.  Rather than making a dedicated effort to copy my favorite designs, instead I have tried to follow the more abstract philosophies of Fumio Mieda and Hiroaki Nishijima.  This led to core values of the project like valuing sound aesthetic over clean processing, and adopting a high-speed, hard-driven development cycle.
 
-The included *Harmonic Brownian Motion Sequencer* is a controllable chaos environment that *almost* completely rejects the idea of tonal music and never does the same thing twice.  You are free to enter the tonal realm by punching in your own notes via the keyboard, which records over the sequence, but a balance of harmonic and rhythmic evolution is inevitable.  It occupys the panel space designated for the external signal processor in the original MS-20 design.
+The included *Harmonic Brownian Motion Sequencer* is a controllable chaos environment that *almost* completely rejects the idea of tonal music and never does the same thing twice.  You are free to enter the tonal realm by punching in your own notes via the keyboard, which records over the sequence, but a balance of harmonic and rhythmic evolution is inevitable.  It occupies the panel space designated for the external signal processor in the original MS-20 design.
 
-The Accelerator is meant to be played primarily via the front panel knobs, and a skilled user can ride the sequencer like a neverending wave of hypnotic inspiration, sculpting the perceived melody at will.  By focusing on controlling complex timbres and leaving the source melody up to chance, this device flips the script of what musical expression can and should be.
+The Accelerator is meant to be played primarily via the front panel knobs, and a skilled user can ride the sequencer like a never-ending wave of hypnotic inspiration, sculpting the perceived melody at will.  By focusing on controlling complex timbres and leaving the source melody up to chance, this device flips the script of what musical expression can and should be.
+
 
 # Specs
 
@@ -80,8 +81,23 @@ The Accelerator is meant to be played primarily via the front panel knobs, and a
 44.1k Stereo Recorder
 44.1k Stem Recorder
 
----
-![labeling mockup](knob%20labels.jpg) 
+# 🎵
+
+# Details
+This is currently an open-source DIY project.
+
+*DIFFICULTY:* <span style="color: green;">**TOTAL BEGINNER**</span>
+
+**You'll need:**
+
+- A KORG MS-20ic midi controller ([check prices](https://reverb.com/price-guide/korg-ms20ic))
+
+**And either**
+- A computer (installation is only 3 steps)
+
+**OR**
+
+- A Bela Mini (for use on-the-go).
 
 ## 💻 Desktop Installation (macOS / Windows / Linux)
 
@@ -118,9 +134,11 @@ Note: turn off the MS-20ic power switch to end the recording and save it.  Killi
 
 Note: Press `Cmd + Shift + L` (or `Ctrl + Shift + L` on PC) to kill the SuperCollider process.
 
+# ✨
+
 ---
 
-## 🛠 Bela Mini Installation
+## 🛠 (Optional) Bela Mini Installation
 
 ### 1. **Prerequisites**
 
@@ -162,9 +180,12 @@ Shut down Bela and close the bela.local window in your browser.
 Now when you plug in Bela Mini, the code will automatically run.
 Bela Mini takes approximately 60 seconds to start.  This can feel like a lifetime, but your patience will be rewarded.  Do not turn on the MS-20ic controller until then, or you may get strange behavior, like the recording not working.
 
-
+# ✨
 
 ---
+![labeling mockup](knob%20labels%20v2.jpg) 
+This is how I would recommend labeling the MS-20ic controller.  I sanded the black paint off mine and put some clear coat on it to protect the amazing natural color.  I also spray-painted the white keys silver for a more brutalist aesthetic.
+
 
 ## ❓ FAQ
 
