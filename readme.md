@@ -235,8 +235,7 @@ The Drums In input is not routed to any fx.  However the snare drum gets indepen
 ### How do I add swing to the sequencer?
 Open up the `_main.scd` file in a text editor.  About 25 lines down you'll see 
 ```
-~swingDrums = 0;
-~swingSynth = 0;
+~swing = 0;
 ```
 `0` means no swing. `100` means full swing.  Choose any value in between and save the file.
 
