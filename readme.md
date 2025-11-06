@@ -84,18 +84,16 @@ The Accelerator is meant to be played primarily via the front panel knobs, and a
 # 🎵
 
 # Details
-This is currently an open-source DIY project.
-
-*DIFFICULTY:* <span style="color: green;">**TOTAL BEGINNER**</span>
+This is currently an open-source DIY project accessible to a **total beginner** who has no experience building synthesizers of any kind.
 
 **You'll need:**
 
 - A KORG MS-20ic midi controller ([check prices](https://reverb.com/price-guide/korg-ms20ic))
 
-**And either**
+and either
 - A computer (installation is only 3 steps)
 
-**OR**
+or
 
 - A Bela Mini (for use on-the-go).
 
@@ -103,7 +101,7 @@ This is currently an open-source DIY project.
 
 ### 1. **Install SuperCollider**
 
-Download and install from:  
+Download and install for free from:  
 👉 [https://supercollider.github.io/downloads](https://supercollider.github.io/downloads)
 
 SuperCollider is the programming language and environment in which the code runs.
@@ -112,7 +110,7 @@ SuperCollider is the programming language and environment in which the code runs
 
 There are two options: 
 
-either click the "< > Code" button in the upper right of this page and download the .zip file,
+Either click the "< > Code" button in the upper right of this page and download the .zip file,
 
 or 
 
@@ -123,8 +121,8 @@ cd your-repo-name
 
 ### 3. **Open and Run**
 
-- Connect your KORG MS-20ic midi controller and turn the power switch OFF
-- Open SuperCollider
+- Connect your KORG MS-20ic via USB and turn the master volume/power switch OFF
+- Open SuperCollider on your computer
 - Open the `supersonicACCELERATOR.scd` file in the SuperCollider IDE.
 - Click anywhere in the code and press `Cmd + Enter` (or `Ctrl + Enter` on PC) to run it
 - Turn on the MS-20ic power switch
