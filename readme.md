@@ -168,8 +168,11 @@ We can't drag and drop the folders, so create them yourself on Bela.  One named 
 Drag & drop the contents of the samples folder on your computer into the "samples" folder in Bela
 
 Navigate to Project Settings (Gear Icon)
+
 Set "Run project on boot" to supersonicACCELERATOR
+
 Set "Block size (audio frames)" to 512
+
 Shut down Bela and close the bela.local window in your browser.
 
 
